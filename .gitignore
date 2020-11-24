@@ -1,0 +1,13 @@
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+.idea/
+.mvn/
+
+target/
+
+!**/src/main/**/target/
+!**/src/test/**/target/
