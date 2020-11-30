@@ -36,6 +36,11 @@ public class UserController {
         return signUpSuccessResponseDto.get();
     }
 
+    @PutMapping("/users/{userId}/location")
+    public void driverParticipateActivity(@PathVariable long userId, @RequestParam double latitude, @RequestParam double longitude) {
+        userService.updateLocation(userId, latitude, longitude);
+    }
+
     @PostMapping("/activities/{activityName}/drivers/{driverId}")
     public void driverParticipateActivity(@PathVariable String activityName, @PathVariable long driverId) {
         userService.participateActivity(activityName, driverId);

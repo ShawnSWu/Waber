@@ -74,8 +74,8 @@
     </build>
     <modules>
         <module>MatchService</module>
-        <module>CarryPassengersService</module>
         <module>PricingService</module>
         <module>UserService</module>
+        <module>TripService</module>
     </modules>
 </project>

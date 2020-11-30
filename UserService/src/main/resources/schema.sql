@@ -48,3 +48,12 @@ create table activity_participant
     foreign key (participant) references driver (id)
 );
 
+create table user_location
+(
+    id        integer  not null auto_increment,
+    user_id   integer  not null,
+    datetime  datetime not null,
+    latitude  double   not null,
+    longitude double   not null,
+    primary key (id)
+);
