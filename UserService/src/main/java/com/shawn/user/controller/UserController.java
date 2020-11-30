@@ -41,8 +41,4 @@ public class UserController {
         userService.updateLocation(userId, latitude, longitude);
     }
 
-    @PostMapping("/activities/{activityName}/drivers/{driverId}")
-    public void driverParticipateActivity(@PathVariable String activityName, @PathVariable long driverId) {
-        userService.participateActivity(activityName, driverId);
-    }
 }
