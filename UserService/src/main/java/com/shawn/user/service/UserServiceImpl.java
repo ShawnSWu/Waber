@@ -1,6 +1,5 @@
 package com.shawn.user.service;
 
-import com.shawn.user.exception.ParticipateActivityException;
 import com.shawn.user.exception.SignUpException;
 import com.shawn.user.model.*;
 import com.shawn.user.model.dto.SignUpFormDto;
@@ -20,21 +19,14 @@ public class UserServiceImpl implements UserService {
 
     PassengerRepository passengerRepository;
 
-    ActivityRepository activityRepository;
-
-    ActivityParticipantRepository activityParticipantRepository;
-
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     UserLocationRepository userLocationRepository;
 
     public UserServiceImpl(DriverRepository driverRepository, PassengerRepository passengerRepository,
-                           ActivityRepository activityRepository, ActivityParticipantRepository activityParticipantRepository,
                            BCryptPasswordEncoder bCryptPasswordEncoder, UserLocationRepository userLocationRepository) {
         this.driverRepository = driverRepository;
         this.passengerRepository = passengerRepository;
-        this.activityRepository = activityRepository;
-        this.activityParticipantRepository = activityParticipantRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userLocationRepository = userLocationRepository;
     }
@@ -84,27 +76,6 @@ public class UserServiceImpl implements UserService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build());
-    }
-
-    @Override
-    public void participateActivity(String activityName, long driverId) {
-        Activity activity = activityRepository.findByName(activityName);
-        if (Optional.ofNullable(activity).isPresent()) {
-            if (!isAlreadyParticipate(activity, driverId)) {
-                activityParticipantRepository.save(ActivityParticipant.builder()
-                        .activity(activity.getId())
-                        .participant(driverId)
-                        .build());
-            } else {
-                throw new ParticipateActivityException("You have participated.");
-            }
-        } else {
-            throw new ParticipateActivityException("Activity is not exist.");
-        }
-    }
-
-    private boolean isAlreadyParticipate(Activity activity, long driverId) {
-        return Optional.ofNullable(activityParticipantRepository.findByActivityAndParticipant(activity.getId(), driverId)).isPresent();
     }
 
 }

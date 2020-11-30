@@ -9,7 +9,5 @@ public interface UserService {
 
     SignUpSuccessResponseDto signUpAsDriver(SignUpFormDto signUpFormDto);
 
-    void participateActivity(String activityName, long driverId);
-
     void updateLocation(long userId, double latitude, double longitude);
 }
