@@ -2,9 +2,7 @@ package com.shawn.user.model;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 
 @Entity(name = "driver")
@@ -15,6 +13,7 @@ import javax.persistence.Id;
 public class Driver {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
