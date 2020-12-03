@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ActivityDriverRepository extends JpaRepository<ActivityDriver, Long> {
 
-    ActivityDriver findByActivityAndDriver(long activityId, long driverId);
+    ActivityDriver findByActivityAndDriverId(long activityId, long driverId);
 
     List<ActivityDriver> findAllByActivityAndCarType(long activityId, String carType);
 }

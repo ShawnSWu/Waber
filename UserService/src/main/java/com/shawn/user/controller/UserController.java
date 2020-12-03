@@ -1,7 +1,6 @@
 package com.shawn.user.controller;
 
 import com.shawn.user.exception.SignUpException;
-import com.shawn.user.model.Driver;
 import com.shawn.user.model.dto.SignUpFormDto;
 import com.shawn.user.model.dto.response.DriverDto;
 import com.shawn.user.model.dto.response.SignUpSuccessResponseDto;
@@ -17,7 +16,7 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/users")
     public SignUpSuccessResponseDto signUp(@RequestBody SignUpFormDto signUpFormDto, @RequestParam String type) {

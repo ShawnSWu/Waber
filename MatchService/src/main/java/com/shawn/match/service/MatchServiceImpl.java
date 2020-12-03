@@ -14,30 +14,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class MatchServiceImpl implements MatchService {
 
-    @Autowired
-    ActivityRepository activityRepository;
+    private ActivityRepository activityRepository;
 
-    @Autowired
-    ActivityDriverRepository activityDriverRepository;
+    private ActivityDriverRepository activityDriverRepository;
 
-    @Autowired
-    WaitingMatchPassengerRepository waitingMatchPassengerRepository;
+    private WaitingMatchPassengerRepository waitingMatchPassengerRepository;
 
-    @Autowired
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-    @Autowired
-    String USER_SERVICE_API;
+    private String USER_SERVICE_API;
 
+    public MatchServiceImpl(ActivityRepository activityRepository, ActivityDriverRepository activityDriverRepository,
+                            WaitingMatchPassengerRepository waitingMatchPassengerRepository, RestTemplate restTemplate, String USER_SERVICE_API) {
+        this.activityRepository = activityRepository;
+        this.activityDriverRepository = activityDriverRepository;
+        this.waitingMatchPassengerRepository = waitingMatchPassengerRepository;
+        this.restTemplate = restTemplate;
+        this.USER_SERVICE_API = USER_SERVICE_API;
+    }
 
     @Override
     public void participateActivity(String activityName, long driverId) {
@@ -48,7 +48,7 @@ public class MatchServiceImpl implements MatchService {
             if (!isAlreadyParticipate(activity, driverId)) {
                 activityDriverRepository.save(ActivityDriver.builder()
                         .activity(activity.getId())
-                        .driver(driverId)
+                        .driverId(driverId)
                         .carType(driverDto.getCarType())
                         .build());
             } else {
@@ -94,9 +94,9 @@ public class MatchServiceImpl implements MatchService {
         if (activityDrivers.isEmpty()) {
             return MatchedResultDto.builder().completed(false).build();
         }
-        UserLocationDto passengerLocation = getUserLocation(passengerId);
+        UserLocationDto passengerLocation = getUserLocation(waitingMatchPassenger.getPassenger());
         ActivityDriver activityDriver = findMatchDriver(activityDrivers, passengerLocation);
-        DriverDto driverDto = getDriver(activityDriver.getId());
+        DriverDto driverDto = getDriver(activityDriver.getDriverId());
         return MatchedResultDto.builder().completed(true).driverId(driverDto.getId()).driverName(driverDto.getName()).passengerId(passengerId).build();
     }
 
@@ -104,11 +104,8 @@ public class MatchServiceImpl implements MatchService {
         double minDistance = Double.MAX_VALUE;
         Optional<ActivityDriver> matchDriver = Optional.empty();
         for (ActivityDriver driver : activityDrivers) {
-            UserLocationDto driverLocation = getUserLocation(driver.getId());
+            UserLocationDto driverLocation = getUserLocation(driver.getDriverId());
             double distance = Haversine.distance(passengerLocation.getLatitude(), passengerLocation.getLongitude(), driverLocation.getLatitude(), driverLocation.getLongitude());
-            System.out.println(passengerLocation.getLatitude()+","+passengerLocation.getLongitude()+","+driverLocation.getLatitude()+","+driverLocation.getLongitude());
-            System.out.println(driver.getDriver());
-            System.out.println(distance);
             if (distance < minDistance) {
                 minDistance = distance;
                 matchDriver = Optional.of(driver);
@@ -118,7 +115,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     private boolean isAlreadyParticipate(Activity activity, long driverId) {
-        return Optional.ofNullable(activityDriverRepository.findByActivityAndDriver(activity.getId(), driverId)).isPresent();
+        return Optional.ofNullable(activityDriverRepository.findByActivityAndDriverId(activity.getId(), driverId)).isPresent();
     }
 
 
