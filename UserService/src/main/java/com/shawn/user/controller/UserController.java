@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{userId}/location")
-    public void driverParticipateActivity(@PathVariable long userId, @RequestParam double latitude, @RequestParam double longitude) {
+    public void updateLocation(@PathVariable long userId, @RequestParam double latitude, @RequestParam double longitude) {
         userService.updateLocation(userId, latitude, longitude);
     }
 

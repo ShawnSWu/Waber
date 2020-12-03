@@ -1,20 +1,22 @@
 package com.shawn.user.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-
-@Entity(name = "driver")
 @Builder
 @Getter
+@Entity(name = "user")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Driver {
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(name = "email")
@@ -26,7 +28,6 @@ public class Driver {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "car_type")
-    private String carType;
-
+    @Column(name = "role")
+    long role;
 }

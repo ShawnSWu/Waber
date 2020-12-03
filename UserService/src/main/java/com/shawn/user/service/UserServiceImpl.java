@@ -15,18 +15,16 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    DriverRepository driverRepository;
-
-    PassengerRepository passengerRepository;
+    UserRepository userRepository;
 
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     UserLocationRepository userLocationRepository;
 
-    public UserServiceImpl(DriverRepository driverRepository, PassengerRepository passengerRepository,
-                           BCryptPasswordEncoder bCryptPasswordEncoder, UserLocationRepository userLocationRepository) {
-        this.driverRepository = driverRepository;
-        this.passengerRepository = passengerRepository;
+    private final int DRIVER_ROLE_CODE = 1, PASSENGER_ROLE_CODE = 2;
+
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, UserLocationRepository userLocationRepository) {
+        this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userLocationRepository = userLocationRepository;
     }
@@ -36,12 +34,7 @@ public class UserServiceImpl implements UserService {
         if (isPassengerExist(signUpFormDto)) {
             throw new SignUpException("Passenger already exist.");
         }
-        String hashedPassword = bCryptPasswordEncoder.encode(signUpFormDto.getPassword());
-        Passenger newPassenger = passengerRepository.save(Passenger.builder()
-                .email(signUpFormDto.getEmail())
-                .hashedPassword(hashedPassword)
-                .name(signUpFormDto.getName())
-                .build());
+        User newPassenger = createUser(signUpFormDto, PASSENGER_ROLE_CODE);
         return SignUpSuccessResponseDto.builder().id(newPassenger.getId()).email(newPassenger.getEmail()).name(newPassenger.getName()).build();
     }
 
@@ -50,22 +43,26 @@ public class UserServiceImpl implements UserService {
         if (isDriverExist(signUpFormDto)) {
             throw new SignUpException("Driver already exist.");
         }
-        String hashedPassword = bCryptPasswordEncoder.encode(signUpFormDto.getPassword());
-        Driver newDriver = driverRepository.save(Driver.builder()
-                .email(signUpFormDto.getEmail())
-                .hashedPassword(hashedPassword)
-                .name(signUpFormDto.getName())
-                .carType(signUpFormDto.getCarType())
-                .build());
+        User newDriver = createUser(signUpFormDto, DRIVER_ROLE_CODE);
         return SignUpSuccessResponseDto.builder().id(newDriver.getId()).email(newDriver.getEmail()).name(newDriver.getName()).build();
     }
 
+    private User createUser(SignUpFormDto signUpFormDto, int userRole) {
+        String hashedPassword = bCryptPasswordEncoder.encode(signUpFormDto.getPassword());
+        return userRepository.save(User.builder()
+                .email(signUpFormDto.getEmail())
+                .hashedPassword(hashedPassword)
+                .name(signUpFormDto.getName())
+                .role(userRole)
+                .build());
+    }
+
     private boolean isPassengerExist(SignUpFormDto signUpFormDto) {
-        return Optional.ofNullable(passengerRepository.findByEmail(signUpFormDto.getEmail())).isPresent();
+        return Optional.ofNullable(userRepository.findByEmailAndRole(signUpFormDto.getEmail(), PASSENGER_ROLE_CODE)).isPresent();
     }
 
     private boolean isDriverExist(SignUpFormDto signUpFormDto) {
-        return Optional.ofNullable(driverRepository.findByEmail(signUpFormDto.getEmail())).isPresent();
+        return Optional.ofNullable(userRepository.findByEmailAndRole(signUpFormDto.getEmail(), DRIVER_ROLE_CODE)).isPresent();
     }
 
     @Override

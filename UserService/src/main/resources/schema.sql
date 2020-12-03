@@ -8,24 +8,27 @@ values (1, 'driver');
 insert into roles
 values (2, 'passenger');
 
-create table driver
+create table user
 (
     id              integer      not null auto_increment,
     email           varchar(128) not null,
     hashed_password varchar(64)  not null,
     name            varchar(50)  not null,
-    car_type        varchar(50)  not null,
-    primary key (id)
+    role            integer      not null,
+    primary key (id),
+    foreign key (role) references roles (id)
 );
 
-create table passenger
+create table driver_car_type
 (
-    id              integer      not null auto_increment,
-    email           varchar(128) not null,
-    hashed_password varchar(64)  not null,
-    name            varchar(50)  not null,
-    primary key (id)
+    id       integer      not null auto_increment,
+    driver   integer      not null,
+    car_type varchar(128) not null,
+    primary key (id),
+    foreign key (driver) references user(id)
 );
+
+
 
 create table user_location
 (
