@@ -37,5 +37,6 @@ create table user_location
     datetime  datetime not null,
     latitude  double   not null,
     longitude double   not null,
-    primary key (id)
+    primary key (id),
+    foreign key (user_id) references user(id)
 );
