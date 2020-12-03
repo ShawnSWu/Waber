@@ -3,13 +3,16 @@ package com.shawn.user.service;
 import com.shawn.user.exception.SignUpException;
 import com.shawn.user.model.*;
 import com.shawn.user.model.dto.SignUpFormDto;
+import com.shawn.user.model.dto.response.DriverDto;
 import com.shawn.user.model.dto.response.SignUpSuccessResponseDto;
+import com.shawn.user.model.dto.response.UserLocationDto;
 import com.shawn.user.repostitory.*;
 import com.shawn.user.utils.DateUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -76,6 +79,18 @@ public class UserServiceImpl implements UserService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .build());
+    }
+
+    @Override
+    public UserLocationDto getUserLatestLocation(long userId) {
+        UserLocation userLocation = userLocationRepository.findFirstByUserIdOrderByIdDesc(userId);
+        return UserLocationDto.builder().userId(userId).latitude(userLocation.getLatitude()).longitude(userLocation.getLongitude()).build();
+    }
+
+    @Override
+    public DriverDto getDriver(long driverId) {
+        Driver driver = driverRepository.findById(driverId);
+        return DriverDto.builder().id(driver.getId()).email(driver.getEmail()).name(driver.getName()).carType(driver.getCarType()).build();
     }
 
 }

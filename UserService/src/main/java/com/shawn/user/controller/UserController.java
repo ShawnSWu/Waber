@@ -1,16 +1,17 @@
 package com.shawn.user.controller;
 
 import com.shawn.user.exception.SignUpException;
+import com.shawn.user.model.Driver;
 import com.shawn.user.model.dto.SignUpFormDto;
+import com.shawn.user.model.dto.response.DriverDto;
 import com.shawn.user.model.dto.response.SignUpSuccessResponseDto;
+import com.shawn.user.model.dto.response.UserLocationDto;
 import com.shawn.user.service.UserService;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@Data
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -37,8 +38,18 @@ public class UserController {
     }
 
     @PutMapping("/users/{userId}/location")
-    public void driverParticipateActivity(@PathVariable long userId, @RequestParam double latitude, @RequestParam double longitude) {
+    public void updateLocation(@PathVariable long userId, @RequestParam double latitude, @RequestParam double longitude) {
         userService.updateLocation(userId, latitude, longitude);
+    }
+
+    @GetMapping("/users/{driverId}/location")
+    public UserLocationDto getUserLatestLocation(@PathVariable long driverId) {
+        return userService.getUserLatestLocation(driverId);
+    }
+
+    @GetMapping("/users/{driverId}")
+    public DriverDto getDriver(@PathVariable long driverId) {
+        return userService.getDriver(driverId);
     }
 
 }
