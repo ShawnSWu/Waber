@@ -21,11 +21,11 @@ create table user
 
 create table driver_car_type
 (
-    id       integer      not null auto_increment,
-    driver   integer      not null,
-    car_type varchar(128) not null,
+    id       integer     not null auto_increment,
+    driver   integer     not null,
+    car_type varchar(50) not null,
     primary key (id),
-    foreign key (driver) references user(id)
+    foreign key (driver) references user (id)
 );
 
 
@@ -38,5 +38,5 @@ create table user_location
     latitude  double   not null,
     longitude double   not null,
     primary key (id),
-    foreign key (user_id) references user(id)
+    foreign key (user_id) references user (id)
 );

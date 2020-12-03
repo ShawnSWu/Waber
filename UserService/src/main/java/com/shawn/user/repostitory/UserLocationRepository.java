@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserLocationRepository extends JpaRepository<UserLocation, Long> {
 
+    UserLocation findFirstByUserIdOrderByIdDesc(long userId);
 }

@@ -9,25 +9,19 @@ import javax.persistence.*;
 
 @Builder
 @Getter
-@Entity(name = "user")
+@Entity(name = "driver_car_type")
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class DriverCarType {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "driver")
+    private long driver;
 
-    @Column(name = "hashed_password")
-    private String hashedPassword;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "role")
-    private long role;
+    @Column(name = "car_type")
+    private String carType;
 }

@@ -1,6 +1,6 @@
 package com.shawn.match.exception;
 
-import com.shawn.match.model.dto.response.error.ParticipateActivityFailedResponseDto;
+import com.shawn.match.model.dto.response.ParticipateActivityFailedResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
