@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "activity_participant")
+@Entity(name = "activity_driver")
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ActivityParticipant {
+public class ActivityDriver {
 
     @Id
     @Column(name = "id")
@@ -22,7 +22,10 @@ public class ActivityParticipant {
     @Column(name = "activity")
     private long activity;
 
-    @Column(name = "participant")
-    private long participant;
+    @Column(name = "driver")
+    private long driver;
+
+    @Column(name = "car_type")
+    private String carType;
 
 }
