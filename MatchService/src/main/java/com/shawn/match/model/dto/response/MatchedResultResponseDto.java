@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchedResultDto {
+public class MatchedResultResponseDto {
 
     private boolean completed;
 

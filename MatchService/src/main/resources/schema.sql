@@ -7,7 +7,7 @@ create table activity
     primary key (id)
 );
 insert into activity
-values (1, 'ValentinesDay', '2020-01-01', '2020-12-31');
+values (1, 'ValentinesDay', '2020-02-14', '2020-02-14');
 
 create table activity_driver
 (
@@ -19,25 +19,31 @@ create table activity_driver
     foreign key (activity) references activity (id)
 );
 
-create table waiting_match_passenger
+create table match_status
 (
-    id              integer     not null auto_increment,
-    passenger       integer     not null,
-    prefer_activity integer     not null,
-    prefer_car_type varchar(50) not null,
-    primary key (id),
-    foreign key (prefer_activity) references activity (id)
+    id     integer     not null auto_increment,
+    status varchar(50) not null,
+    primary key (id)
 );
 
+insert into match_status
+values (1, 'Waiting to confirm match');
+insert into match_status
+values (2, 'Successfully matched');
+insert into match_status
+values (3, 'Driver cancel matched');
+insert into match_status
+values (4, 'Passenger cancel matched');
 
 
-create table matched_trip
+create table match_trip
 (
-    id            integer not null auto_increment,
-    driver        integer not null,
-    passenger     integer not null,
-    activity      integer not null,
-    match_success integer not null,
+    id           integer not null auto_increment,
+    driver_id    integer not null,
+    passenger_id integer not null,
+    activity_id  integer not null,
+    match_status integer not null,
     primary key (id),
-    foreign key (activity) references activity (id)
+    foreign key (activity_id) references activity (id),
+    foreign key (match_status) references match_status (id)
 );

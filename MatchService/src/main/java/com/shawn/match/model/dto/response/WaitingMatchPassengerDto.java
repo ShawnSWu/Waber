@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class WaitingMatchDto {
+public class WaitingMatchPassengerDto {
 
-    private long id;
+    private long passenger;
 
-    private long passengerId;
+    private long preferActivity;
+
+    private String preferCarType;
 }
