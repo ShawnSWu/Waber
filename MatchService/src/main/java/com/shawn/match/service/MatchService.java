@@ -1,15 +1,15 @@
 package com.shawn.match.service;
 
-import com.shawn.match.model.dto.response.MatchedResultDto;
+import com.shawn.match.model.dto.response.MatchedResultResponseDto;
 import com.shawn.match.model.dto.response.MatchPreferredConditionDto;
-import com.shawn.match.model.dto.response.WaitingMatchDto;
+import com.shawn.match.model.dto.response.WaitingMatchResponseDto;
 
 public interface MatchService {
 
     void participateActivity(String activityName, long driverId);
 
-    WaitingMatchDto startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId);
+    WaitingMatchResponseDto startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId);
 
-    MatchedResultDto getMatch(long passengerId, long matchId);
+    MatchedResultResponseDto getMatch(long passengerId, String matchId);
 
 }
