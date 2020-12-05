@@ -1,4 +1,4 @@
-package com.shawn.match.model.dto.response;
+package com.shawn.match.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserLocationDto {
+public class StartMatchResponse {
 
-    private long userId;
+    private long matchId;
 
-    private double latitude;
-
-    private double longitude;
 }

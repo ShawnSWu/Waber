@@ -1,4 +1,4 @@
-package com.shawn.match.model.dto.response;
+package com.shawn.match.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

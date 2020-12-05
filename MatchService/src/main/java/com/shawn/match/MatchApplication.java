@@ -17,7 +17,7 @@ public class MatchApplication {
         return new RestTemplate();
     }
 
-    @Bean
+    @Bean(name = "userServiceUrl")
     public String userServiceUrl(){
         return "http://localhost:8080";
     }

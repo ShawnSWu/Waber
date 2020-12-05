@@ -17,13 +17,13 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private DriverCarTypeRepository driverCarTypeRepository;
+    private final DriverCarTypeRepository driverCarTypeRepository;
 
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private UserLocationRepository userLocationRepository;
+    private final UserLocationRepository userLocationRepository;
 
     private final int DRIVER_ROLE_CODE = 1, PASSENGER_ROLE_CODE = 2;
 

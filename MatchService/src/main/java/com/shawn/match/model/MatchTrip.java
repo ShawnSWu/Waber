@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity(name = "match_trip")
 @Builder
@@ -25,10 +26,28 @@ public class MatchTrip {
     @Column(name = "passenger_id")
     long passenger;
 
+    @Column(name = "start_position_latitude")
+    double startPositionLatitude;
+
+    @Column(name = "start_position_longitude")
+    double startPositionLongitude;
+
+    @Column(name = "destination_latitude")
+    double destinationLatitude;
+
+    @Column(name = "destination_longitude")
+    double destinationLongitude;
+
     @Column(name = "activity_id")
     long activity;
 
     @Column(name = "match_status")
     long matchStatus;
+
+    @Column(name = "date")
+    Date date;
+
+    @Column(name = "time")
+    Date time;
 
 }

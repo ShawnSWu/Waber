@@ -1,8 +1,8 @@
 package com.shawn.match.controller;
 
-import com.shawn.match.model.dto.response.MatchedResultResponseDto;
-import com.shawn.match.model.dto.response.MatchPreferredConditionDto;
-import com.shawn.match.model.dto.response.WaitingMatchResponseDto;
+import com.shawn.match.model.dto.MatchedResultResponse;
+import com.shawn.match.model.dto.MatchPreferredConditionDto;
+import com.shawn.match.model.dto.StartMatchResponse;
 import com.shawn.match.service.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,20 +20,19 @@ public class MatchController {
     }
 
     @PostMapping("/users/{passengerId}/match")
-    public WaitingMatchResponseDto startingMatch(@RequestBody MatchPreferredConditionDto matchPreferredConditionDto, @PathVariable long passengerId) {
+    public StartMatchResponse startingMatch(@RequestBody MatchPreferredConditionDto matchPreferredConditionDto, @PathVariable long passengerId) {
         return matchService.startMatch(matchPreferredConditionDto, passengerId);
     }
 
     @GetMapping("/users/{passengerId}/match/{matchId}")
-    public MatchedResultResponseDto getMatch(@PathVariable long passengerId, @PathVariable String matchId) {
+    public MatchedResultResponse getMatch(@PathVariable long passengerId, @PathVariable long matchId) {
         return matchService.getMatch(passengerId, matchId);
     }
 
-
-
-
-    @PutMapping("/users/{passengerId}/match/{matchId}/q")
-    public MatchedResultResponseDto updateMatchTripStatus(@PathVariable long passengerId, @PathVariable String matchId) {
-        return matchService.getMatch(passengerId, matchId);
+    @PutMapping("/users/{userId}/match/{matchId}/accept")
+    public void updateMatchTripStatus(@PathVariable long userId, @PathVariable long matchId) {
+        matchService.confirmMatched(matchId, userId);
     }
+
+
 }
