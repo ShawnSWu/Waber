@@ -1,4 +1,4 @@
-package com.shawn.match.model.dto.response;
+package com.shawn.match.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,4 +12,8 @@ public class MatchPreferredConditionDto {
     private String carType;
 
     private String activity;
+
+    private double destinationLatitude;
+
+    private double destinationLongitude;
 }

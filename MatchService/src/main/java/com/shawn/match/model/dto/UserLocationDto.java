@@ -1,4 +1,4 @@
-package com.shawn.match.model.dto.response;
+package com.shawn.match.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class WaitingMatchResponseDto {
+public class UserLocationDto {
 
-    private String id;
+    private long userId;
 
-    private long passengerId;
+    private double latitude;
+
+    private double longitude;
 }

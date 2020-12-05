@@ -5,36 +5,29 @@ import com.shawn.match.exception.ParticipateActivityException;
 import com.shawn.match.model.Activity;
 import com.shawn.match.model.ActivityDriver;
 import com.shawn.match.model.MatchTrip;
-import com.shawn.match.model.dto.response.*;
+import com.shawn.match.model.dto.*;
 import com.shawn.match.repostitory.ActivityDriverRepository;
 import com.shawn.match.repostitory.ActivityRepository;
 import com.shawn.match.repostitory.MatchTripRepository;
+import com.shawn.match.utils.DateTimeUtils;
 import com.shawn.match.utils.Haversine;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MatchServiceImpl implements MatchService {
 
-    private ActivityRepository activityRepository;
+    private final ActivityRepository activityRepository;
 
-    private ActivityDriverRepository activityDriverRepository;
+    private final ActivityDriverRepository activityDriverRepository;
 
-    private MatchTripRepository matchTripRepository;
+    private final MatchTripRepository matchTripRepository;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-    private String USER_SERVICE_API;
-
-    private Map<String, WaitingMatchPassengerDto> waitingMatchGroup = new HashMap<>();
+    private final String USER_SERVICE_API;
 
     private final int WAITING_CONFIRM_MATCHED = 1, SUCCESSFULLY_MATCHED = 2, DRIVER_CANCEL_MATCHED = 3, PASSENGER_CANCEL_MATCHED = 4;
 
@@ -77,50 +70,75 @@ public class MatchServiceImpl implements MatchService {
 
 
     @Override
-    public WaitingMatchResponseDto startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId) {
+    public StartMatchResponse startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId) {
         String preferActivity = matchPreferredConditionDto.getActivity();
         String preferCarType = matchPreferredConditionDto.getCarType();
         Activity activity = activityRepository.findByName(preferActivity);
         if (Optional.ofNullable(activity).isEmpty()) {
             throw new NotMatchActivityException("Not match activity");
         }
-        WaitingMatchPassengerDto waitingMatchPassengerDto = WaitingMatchPassengerDto.builder()
+        List<ActivityDriver> activityDrivers = activityDriverRepository.findAllByActivityAndCarType(activity.getId(), preferCarType);
+        UserLocationDto passengerLocation = getUserLocation(passengerId);
+        ActivityDriver activityDriver = findMatchDriver(activityDrivers, passengerLocation);
+        Date date = DateTimeUtils.getCurrentDate();
+        Date time = DateTimeUtils.getCurrentTime();
+        MatchTrip matchTrip = matchTripRepository.save(MatchTrip.builder()
+                .driver(activityDriver.getDriverId())
                 .passenger(passengerId)
-                .preferActivity(activity.getId())
-                .preferCarType(preferCarType)
-                .build();
-        String matchId = createWaitingMatchId(passengerId);
-        waitingMatchGroup.put(matchId, waitingMatchPassengerDto);
-        return WaitingMatchResponseDto.builder().passengerId(passengerId).id(matchId).build();
-    }
-
-    private String createWaitingMatchId(long passengerId) {
-        String date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
-        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HHmmss"));
-        return String.format("M%s%sP%d", date, time, passengerId);
+                .startPositionLatitude(matchPreferredConditionDto.getDestinationLatitude())
+                .startPositionLongitude(matchPreferredConditionDto.getDestinationLongitude())
+                .destinationLatitude(matchPreferredConditionDto.getDestinationLatitude())
+                .destinationLongitude(matchPreferredConditionDto.getDestinationLongitude())
+                .activity(activityDriver.getActivity())
+                .matchStatus(WAITING_CONFIRM_MATCHED)
+                .date(date).time(time)
+                .build());
+        return StartMatchResponse.builder().matchId(matchTrip.getId()).build();
     }
 
     @Override
-    public MatchedResultResponseDto getMatch(long passengerId, String matchId) {
-        WaitingMatchPassengerDto passengerPreferredCondition = waitingMatchGroup.get(matchId);
-        List<ActivityDriver> activityDrivers = activityDriverRepository.findAllByActivityAndCarType(passengerPreferredCondition.getPreferActivity(), passengerPreferredCondition.getPreferCarType());
-        if (activityDrivers.isEmpty()) {
-            return MatchedResultResponseDto.builder().completed(false).build();
+    public MatchedResultResponse getMatch(long passengerId, long matchId) {
+        MatchTrip matchTrip = matchTripRepository.findByIdAndPassenger(matchId, passengerId);
+        if (Optional.ofNullable(matchTrip).isEmpty()) {
+            return MatchedResultResponse.builder().completed(false).build();
         }
-        UserLocationDto passengerLocation = getUserLocation(passengerPreferredCondition.getPassenger());
-        ActivityDriver activityDriver = findMatchDriver(activityDrivers, passengerLocation);
-        DriverDto driverDto = getDriver(activityDriver.getDriverId());
-
-        MatchTrip matchTrip = MatchTrip.builder()
-                .driver(activityDriver.getDriverId())
-                .passenger(passengerId)
-                .activity(activityDriver.getActivity())
-                .matchStatus(WAITING_CONFIRM_MATCHED)
-                .build();
-        matchTripRepository.save(matchTrip);
-
-        return MatchedResultResponseDto.builder().completed(true).driverId(driverDto.getId()).driverName(driverDto.getName()).passengerId(passengerId).build();
+        String driverName = getDriver(matchTrip.getDriver()).getName();
+        return MatchedResultResponse.builder().completed(true)
+                .id(matchId).driverId(matchTrip.getDriver())
+                .date(DateTimeUtils.convertDateToText(matchTrip.getDate()))
+                .time(DateTimeUtils.convertTimeToText(matchTrip.getTime()))
+                .passengerId(matchTrip.getPassenger()).driverName(driverName).build();
     }
+
+    @Override
+    public void confirmMatched(long matchId, long passengerId) {
+        matchTripRepository.updateMatchedTripStatus(matchId, passengerId, SUCCESSFULLY_MATCHED);
+    }
+
+    @Override
+    public void driverCancelMatched(long matchId, long passengerId) {
+        matchTripRepository.updateMatchedTripStatus(matchId, passengerId, DRIVER_CANCEL_MATCHED);
+    }
+
+    @Override
+    public void passengerCancelMatched(long matchId, long passengerId) {
+        matchTripRepository.updateMatchedTripStatus(matchId, passengerId, PASSENGER_CANCEL_MATCHED);
+    }
+
+//    @Override
+//    public MatchTripDto getMatchTrip(String matchId) {
+//        MatchTrip matchTrip = matchTripRepository.findByMatchIdAndPassenger(matchId);
+//        return MatchTripDto.builder()
+//                .driver(matchTrip.getDriver()).passenger(matchTrip.getPassenger())
+//                .startPositionLatitude(matchTrip.getStartPositionLatitude())
+//                .startPositionLongitude(matchTrip.getStartPositionLongitude())
+//                .destinationLatitude(matchTrip.getDestinationLatitude())
+//                .destinationLongitude(matchTrip.getDestinationLongitude())
+//                .date(DateTimeUtils.convertDateToText(matchTrip.getDate()))
+//                .time(DateTimeUtils.convertTimeToText(matchTrip.getTime()))
+//                .activity(matchTrip.getActivity()).matchId(matchTrip.getMatchId())
+//                .build();
+//    }
 
     private ActivityDriver findMatchDriver(List<ActivityDriver> activityDrivers, UserLocationDto passengerLocation) {
         double minDistance = Double.MAX_VALUE;
