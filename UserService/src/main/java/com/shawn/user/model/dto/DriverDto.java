@@ -1,18 +1,21 @@
-package com.shawn.user.model.dto.response;
+package com.shawn.user.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder @Getter
-@NoArgsConstructor
+@Getter
+@Builder
 @AllArgsConstructor
-public class SignUpSuccessResponseDto {
+@NoArgsConstructor
+public class DriverDto {
 
     private long id;
 
     private String email;
 
     private String name;
+
+    private long carTypeId;
 }

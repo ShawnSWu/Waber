@@ -1,4 +1,4 @@
-package com.shawn.user.model;
+package com.shawn.user.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,19 +9,20 @@ import javax.persistence.*;
 
 @Builder
 @Getter
-@Entity(name = "driver_car_type")
+@Entity(name = "car_type")
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverCarType {
+public class CarType {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "driver")
-    private long driver;
+    @Column(name = "type")
+    private String type;
 
-    @Column(name = "car_type")
-    private String carType;
+    @Column(name = "extra_price")
+    private long extraPrice;
+
 }

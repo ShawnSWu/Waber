@@ -1,10 +1,11 @@
 package com.shawn.user.controller;
 
 import com.shawn.user.exception.SignUpException;
-import com.shawn.user.model.dto.SignUpFormDto;
-import com.shawn.user.model.dto.response.DriverDto;
-import com.shawn.user.model.dto.response.SignUpSuccessResponseDto;
-import com.shawn.user.model.dto.response.UserLocationDto;
+import com.shawn.user.model.dto.SignUpReq;
+import com.shawn.user.model.dto.CarTypeDto;
+import com.shawn.user.model.dto.DriverDto;
+import com.shawn.user.model.dto.SignUpSuccessResponse;
+import com.shawn.user.model.dto.UserLocationDto;
 import com.shawn.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +20,19 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/users")
-    public SignUpSuccessResponseDto signUp(@RequestBody SignUpFormDto signUpFormDto, @RequestParam String type) {
+    public SignUpSuccessResponse signUp(@RequestBody SignUpReq signUpReq, @RequestParam String type) {
         final String DRIVER = "driver";
         final String PASSENGER = "passenger";
-        Optional<SignUpSuccessResponseDto> signUpSuccessResponseDto = Optional.empty();
+        Optional<SignUpSuccessResponse> signUpSuccessResponseDto = Optional.empty();
         switch (type) {
             case DRIVER -> {
-                if (Optional.ofNullable(signUpFormDto.getCarType()).isEmpty()) {
+                if (Optional.ofNullable(signUpReq.getCarType()).isEmpty()) {
                     throw new SignUpException("Apply to become a driver, car type cannot be empty when.");
                 } else {
-                    signUpSuccessResponseDto = Optional.of(userService.signUpAsDriver(signUpFormDto));
+                    signUpSuccessResponseDto = Optional.of(userService.signUpAsDriver(signUpReq));
                 }
             }
-            case PASSENGER -> signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpFormDto));
+            case PASSENGER -> signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpReq));
         }
         return signUpSuccessResponseDto.get();
     }
@@ -51,4 +52,13 @@ public class UserController {
         return userService.getDriver(driverId);
     }
 
+    @GetMapping("/carType/id/{carTypeId}")
+    public CarTypeDto getCarTypeById(@PathVariable long carTypeId) {
+        return userService.getCarType(carTypeId);
+    }
+
+    @GetMapping("/carType/type/{carTypeName}")
+    public CarTypeDto getCarTypeByName(@PathVariable String carTypeName) {
+        return userService.getCarType(carTypeName);
+    }
 }

@@ -1,4 +1,4 @@
-package com.shawn.match.model.dto;
+package com.shawn.trip.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,11 +8,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchPreferredConditionDto {
+public class ArriveDestinationReq {
 
-    @JsonProperty("carType")
-    private String carType;
+    private long distance;
 
-    @JsonProperty("activity")
-    private String activity;
+    @JsonProperty("location")
+    private LocationDto locationDto;
+
 }
+

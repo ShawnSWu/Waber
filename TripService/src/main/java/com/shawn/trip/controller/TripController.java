@@ -1,6 +1,8 @@
 package com.shawn.trip.controller;
 
+import com.shawn.trip.model.dto.ArriveDestinationReq;
 import com.shawn.trip.model.dto.PickUpResponse;
+import com.shawn.trip.model.dto.TripResponse;
 import com.shawn.trip.service.TripService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +22,13 @@ public class TripController {
     }
 
     @PostMapping("/users/{passengerId}/match/{matchId}/trip/{tripId}/arrive")
-    public void arriveDestination(@PathVariable long passengerId, @PathVariable long matchId, @PathVariable long tripId) {
-        tripService.arriveDestination(passengerId, matchId, tripId);
+    public void arriveDestination(@PathVariable long passengerId, @PathVariable long matchId, @PathVariable long tripId,
+                                  @RequestBody ArriveDestinationReq arriveDestinationReq) {
+        tripService.arriveDestination(passengerId, matchId, tripId, arriveDestinationReq);
+    }
+
+    @GetMapping("/users/{passengerId}/match/{matchId}/trip/{tripId}")
+    public TripResponse getTrip(@PathVariable long passengerId, @PathVariable long matchId, @PathVariable long tripId) {
+        return tripService.getTrip(passengerId, matchId, tripId);
     }
 }
