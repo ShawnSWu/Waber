@@ -1,6 +1,6 @@
 package com.shawn.match.exception;
 
-import com.shawn.match.model.dto.ParticipateActivityFailedResponseDto;
+import com.shawn.match.model.dto.ParticipateActivityFailedResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +13,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = ParticipateActivityException.class)
     @ResponseBody
     public ResponseEntity<?> participateActivityFailed(ParticipateActivityException e) {
-        return new ResponseEntity<>(new ParticipateActivityFailedResponseDto(e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ParticipateActivityFailedResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 

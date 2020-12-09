@@ -1,4 +1,4 @@
-package com.shawn.user.model.dto.response;
+package com.shawn.user.model.dto;
 
 import lombok.Builder;
 import lombok.Getter;

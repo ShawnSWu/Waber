@@ -1,5 +1,6 @@
 package com.shawn.match.controller;
 
+import com.shawn.match.model.dto.ActivityResponse;
 import com.shawn.match.model.dto.MatchedResultResponse;
 import com.shawn.match.model.dto.MatchPreferredConditionDto;
 import com.shawn.match.model.dto.StartMatchResponse;
@@ -32,6 +33,11 @@ public class MatchController {
     @PutMapping("/users/{userId}/match/{matchId}/accept")
     public void updateMatchTripStatus(@PathVariable long userId, @PathVariable long matchId) {
         matchService.confirmMatched(matchId, userId);
+    }
+
+    @GetMapping("/activity/id/{activityId}")
+    public ActivityResponse getActivity(@PathVariable long activityId) {
+        return matchService.getActivity(activityId);
     }
 
 

@@ -1,4 +1,4 @@
-package com.shawn.match.model;
+package com.shawn.match.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,14 +32,11 @@ public class MatchTrip {
     @Column(name = "start_position_longitude")
     double startPositionLongitude;
 
-    @Column(name = "destination_latitude")
-    double destinationLatitude;
-
-    @Column(name = "destination_longitude")
-    double destinationLongitude;
-
     @Column(name = "activity_id")
-    long activity;
+    long activityId;
+
+    @Column(name = "car_type_id")
+    long carTypeId;
 
     @Column(name = "match_status")
     long matchStatus;

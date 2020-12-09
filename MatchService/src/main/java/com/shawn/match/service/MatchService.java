@@ -1,8 +1,6 @@
 package com.shawn.match.service;
 
-import com.shawn.match.model.dto.MatchedResultResponse;
-import com.shawn.match.model.dto.MatchPreferredConditionDto;
-import com.shawn.match.model.dto.StartMatchResponse;
+import com.shawn.match.model.dto.*;
 
 public interface MatchService {
 
@@ -18,6 +16,5 @@ public interface MatchService {
 
     void passengerCancelMatched(long matchId, long passengerId);
 
-//    MatchTripDto getMatchTrip(String matchId);
-
+    ActivityResponse getActivity(long activityId);
 }

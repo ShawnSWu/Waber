@@ -1,6 +1,6 @@
 package com.shawn.match.repostitory;
 
-import com.shawn.match.model.MatchTrip;
+import com.shawn.match.model.entity.MatchTrip;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

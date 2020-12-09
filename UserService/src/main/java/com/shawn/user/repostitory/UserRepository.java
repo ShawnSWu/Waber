@@ -1,6 +1,6 @@
 package com.shawn.user.repostitory;
 
-import com.shawn.user.model.User;
+import com.shawn.user.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

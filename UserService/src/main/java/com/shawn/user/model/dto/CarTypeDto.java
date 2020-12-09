@@ -1,4 +1,4 @@
-package com.shawn.user.model.dto.response;
+package com.shawn.user.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DriverDto {
+public class CarTypeDto {
 
     private long id;
 
-    private String email;
+    private String type;
 
-    private String name;
+    private long extraPrice;
 
-    private String carType;
 }

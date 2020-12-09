@@ -1,4 +1,4 @@
-package com.shawn.trip.model;
+package com.shawn.trip.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,23 +23,11 @@ public class Trip {
     @Column(name = "match_id")
     private long matchId;
 
-    @Column(name = "driver_id")
-    private long driverId;
-
-    @Column(name = "passenger_id")
-    private long passengerId;
-
     @Column(name = "date")
     private Date date;
 
     @Column(name = "time")
     private Date time;
-
-    @Column(name = "start_position_latitude")
-    private double startPositionLatitude;
-
-    @Column(name = "start_position_longitude")
-    private double startPositionLongitude;
 
     @Column(name = "destination_latitude")
     private double destinationLatitude;
@@ -49,5 +37,8 @@ public class Trip {
 
     @Column(name = "trip_status")
     private long tripStatus;
+
+    @Column(name = "trip_distance")
+    private long tripDistance;
 
 }

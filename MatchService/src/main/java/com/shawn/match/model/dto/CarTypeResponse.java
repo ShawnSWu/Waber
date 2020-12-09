@@ -7,11 +7,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class StartMatchResponse {
-    @JsonProperty("matchId")
-    private long matchId;
+public class CarTypeResponse {
 
+    @JsonProperty("id")
+    private long id;
+
+    @JsonProperty("type")
+    private String type;
+
+    @JsonProperty("extraPrice")
+    private long extraPrice;
 }

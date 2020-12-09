@@ -15,17 +15,14 @@ values (3, 'Cancel trip halfway.');
 
 create table trip
 (
-    id                       integer   not null auto_increment,
-    match_id                 integer   not null,
-    driver_id                integer   not null,
-    passenger_id             integer   not null,
-    date                     timestamp not null,
-    time                     timestamp not null,
-    start_position_latitude  double    not null,
-    start_position_longitude double    not null,
-    destination_latitude     double    not null,
-    destination_longitude    double    not null,
-    trip_status              integer   not null,
+    id                       integer     not null auto_increment,
+    match_id                 integer     not null,
+    date                     timestamp   not null,
+    time                     timestamp   not null,
+    destination_latitude     double      not null,
+    destination_longitude    double      not null,
+    trip_status              integer     not null,
+    trip_distance            integer     not null,
     primary key (id),
     foreign key (trip_status) references trip_status
-);
+)

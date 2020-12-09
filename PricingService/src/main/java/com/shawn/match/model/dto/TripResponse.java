@@ -1,17 +1,19 @@
-package com.shawn.trip.model.dto;
+package com.shawn.match.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchedTripDto {
+public class TripResponse {
 
     private long id;
+
+    private long matchId;
 
     private long driverId;
 
@@ -25,10 +27,8 @@ public class MatchedTripDto {
 
     private double destinationLongitude;
 
-    private String matchId;
+    private long tripStatus;
 
-    private String date;
-
-    private String time;
+    private long tripDistance;
 
 }

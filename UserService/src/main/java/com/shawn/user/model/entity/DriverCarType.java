@@ -1,4 +1,4 @@
-package com.shawn.match.model;
+package com.shawn.user.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,25 +7,21 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity(name = "activity")
 @Builder
 @Getter
+@Entity(name = "driver_car_type")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Activity {
+public class DriverCarType {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "driver")
+    private long driver;
 
-    @Column(name = "start_day")
-    private String startDay;
-
-    @Column(name = "expire_day")
-    private String expireDay;
-
+    @Column(name = "car_type_id")
+    private long carTypeId;
 }

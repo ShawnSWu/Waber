@@ -19,13 +19,29 @@ create table user
     foreign key (role) references roles (id)
 );
 
+create table car_type
+(
+    id          integer     not null auto_increment,
+    type        varchar(50) not null,
+    extra_price integer     not null,
+    primary key (id)
+);
+
+insert into car_type
+values (1, 'Sport', 1000);
+insert into car_type
+values (2, 'Business', 100);
+insert into car_type
+values (3, 'Normal', 0);
+
 create table driver_car_type
 (
-    id       integer     not null auto_increment,
-    driver   integer     not null,
-    car_type varchar(50) not null,
+    id          integer not null auto_increment,
+    driver      integer not null,
+    car_type_id integer not null,
     primary key (id),
-    foreign key (driver) references user (id)
+    foreign key (driver) references user (id),
+    foreign key (car_type_id) references car_type (id)
 );
 
 
