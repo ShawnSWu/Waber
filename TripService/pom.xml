@@ -8,8 +8,21 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>TripService</artifactId>
-
-
+    <properties>
+        <serviceName>TripService</serviceName>
+    </properties>
+    <artifactId>${serviceName}</artifactId>
+    <build>
+        <finalName>${serviceName}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>14</source>
+                    <target>14</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
