@@ -25,14 +25,16 @@ public class UserController {
         final String PASSENGER = "passenger";
         Optional<SignUpSuccessResponse> signUpSuccessResponseDto = Optional.empty();
         switch (type) {
-            case DRIVER -> {
+            case DRIVER: {
                 if (Optional.ofNullable(signUpReq.getCarType()).isEmpty()) {
                     throw new SignUpException("Apply to become a driver, car type cannot be empty when.");
-                } else {
-                    signUpSuccessResponseDto = Optional.of(userService.signUpAsDriver(signUpReq));
                 }
+                signUpSuccessResponseDto = Optional.of(userService.signUpAsDriver(signUpReq));
             }
-            case PASSENGER -> signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpReq));
+            break;
+            case PASSENGER:
+                signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpReq));
+                break;
         }
         return signUpSuccessResponseDto.get();
     }

@@ -1,0 +1,39 @@
+version: "2"
+
+services:
+  user:
+    build: ./UserService .
+    ports:
+    - "8080:8080"
+    networks:
+      - local
+  trip:
+    build: ./TripService .
+    ports:
+      - "8082:8082"
+    links:
+      - match
+    networks:
+      - local
+  pricing:
+    build: ./PricingService .
+    ports:
+      - "8083:8083"
+    links:
+      - user
+      - trip
+      - match
+    networks:
+      - local
+  match:
+    build: ./MatchService .
+    ports:
+      - "8081:8081"
+    links:
+      - user
+    networks:
+      - local
+networks:
+
+  local:
+    driver: bridge
