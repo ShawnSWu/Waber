@@ -18,16 +18,16 @@ public class PricingApplication {
 
     @Bean(name = "tripServiceUrl")
     public String tripServiceUrl(){
-        return "http://localhost:8082";
+        return "http://trip:8082";
     }
 
     @Bean(name = "matchServiceUrl")
     public String matchServiceUrl(){
-        return "http://localhost:8081";
+        return "http://match:8081";
     }
 
     @Bean(name = "userServiceUrl")
     public String userServiceUrl(){
-        return "http://localhost:8080";
+        return "http://user:8080";
     }
 }
