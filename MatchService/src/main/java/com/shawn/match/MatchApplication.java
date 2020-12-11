@@ -19,6 +19,6 @@ public class MatchApplication {
 
     @Bean(name = "userServiceUrl")
     public String userServiceUrl(){
-        return "http://0.0.0.0:8080";
+        return "http://user:8080";
     }
 }

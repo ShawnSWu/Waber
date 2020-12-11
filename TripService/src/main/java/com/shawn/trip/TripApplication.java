@@ -18,6 +18,6 @@ public class TripApplication {
 
     @Bean(name = "matchServiceUrl")
     public String matchServiceUrl(){
-        return "http://0.0.0.0:8081";
+        return "http://match:8081";
     }
 }

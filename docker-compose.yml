@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 
 services:
   user:
@@ -11,26 +11,18 @@ services:
     build: ./TripService .
     ports:
       - "8082:8082"
-    links:
-      - match
     networks:
       - local
   pricing:
     build: ./PricingService .
     ports:
       - "8083:8083"
-    links:
-      - user
-      - trip
-      - match
     networks:
       - local
   match:
     build: ./MatchService .
     ports:
       - "8081:8081"
-    links:
-      - user
     networks:
       - local
 networks:
