@@ -16,8 +16,4 @@ public class TripApplication {
         return new RestTemplate();
     }
 
-    @Bean(name = "matchServiceUrl")
-    public String matchServiceUrl(){
-        return "http://match:8081";
-    }
 }

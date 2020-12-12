@@ -1,25 +1,3 @@
-create table activity
-(
-    id          integer      not null auto_increment,
-    name        varchar(128) not null,
-    extra_price integer      not null,
-    start_day   date,
-    expire_day  date,
-    primary key (id)
-);
-insert into activity
-values (1, 'ValentinesDay', 30, '2020-02-14', '2020-02-14');
-
-create table activity_driver
-(
-    id          integer not null auto_increment,
-    activity_id integer not null,
-    driver_id   integer not null,
-    car_type_id integer not null,
-    primary key (id),
-    foreign key (activity_id) references activity (id)
-);
-
 create table match_status
 (
     id     integer     not null auto_increment,
@@ -50,6 +28,5 @@ create table match_trip
     date                     timestamp not null,
     time                     timestamp not null,
     primary key (id),
-    foreign key (activity_id) references activity (id),
     foreign key (match_status) references match_status (id)
 );

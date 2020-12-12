@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Repository
 public interface MatchTripRepository extends JpaRepository<MatchTrip, Long> {
@@ -16,5 +17,5 @@ public interface MatchTripRepository extends JpaRepository<MatchTrip, Long> {
     @Query("update match_trip m set m.matchStatus = ?3 where m.id = ?1 and m.passenger = ?2")
     void updateMatchedTripStatus(long matchId, long passenger, long status);
 
-    MatchTrip findByIdAndPassenger(long matchId, long passenger);
+    Optional<MatchTrip> findByIdAndPassenger(long matchId, long passenger);
 }

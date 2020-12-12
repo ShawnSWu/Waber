@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Builder
 @Getter
@@ -24,5 +25,8 @@ public class CarType {
 
     @Column(name = "extra_price")
     private long extraPrice;
+
+    @ManyToMany(mappedBy = "carTypes")
+    private List<User> users;
 
 }

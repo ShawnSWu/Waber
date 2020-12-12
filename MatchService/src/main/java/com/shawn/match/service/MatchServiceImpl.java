@@ -1,116 +1,130 @@
 package com.shawn.match.service;
 
+import com.shawn.match.exception.MatchIdNotFoundException;
 import com.shawn.match.exception.NotMatchActivityException;
-import com.shawn.match.exception.ParticipateActivityException;
-import com.shawn.match.model.entity.Activity;
-import com.shawn.match.model.entity.ActivityDriver;
+import com.shawn.match.exception.NotMatchCarTypeException;
 import com.shawn.match.model.entity.MatchTrip;
 import com.shawn.match.model.dto.*;
-import com.shawn.match.repostitory.ActivityDriverRepository;
-import com.shawn.match.repostitory.ActivityRepository;
 import com.shawn.match.repostitory.MatchTripRepository;
-import com.shawn.match.utils.DateTimeUtils;
 import com.shawn.match.utils.Haversine;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
+import static com.shawn.match.utils.DateTimeUtils.*;
+import static com.shawn.match.utils.DateTimeUtils.getCurrentDate;
+
 @Service
 public class MatchServiceImpl implements MatchService {
-
-    private final ActivityRepository activityRepository;
-
-    private final ActivityDriverRepository activityDriverRepository;
 
     private final MatchTripRepository matchTripRepository;
 
     private final RestTemplate restTemplate;
 
-    @Value("#{userServiceUrl}")
+    @Value("${user.service.rul}")
     private String USER_SERVICE_API;
 
-    private final int WAITING_CONFIRM_MATCHED = 1, SUCCESSFULLY_MATCHED = 2, DRIVER_CANCEL_MATCHED = 3, PASSENGER_CANCEL_MATCHED = 4;
+    private final int WAITING_CONFIRM_MATCHED = 1, SUCCESSFULLY_MATCHED = 2, DRIVER_CANCEL_MATCHED = 3,
+            PASSENGER_CANCEL_MATCHED = 4, NOT_YET_MATCHED = -1;
 
-    public MatchServiceImpl(ActivityRepository activityRepository, ActivityDriverRepository activityDriverRepository,
-                            MatchTripRepository matchTripRepository, RestTemplate restTemplate) {
-        this.activityRepository = activityRepository;
-        this.activityDriverRepository = activityDriverRepository;
+    public MatchServiceImpl(MatchTripRepository matchTripRepository, RestTemplate restTemplate) {
         this.matchTripRepository = matchTripRepository;
         this.restTemplate = restTemplate;
     }
 
-    @Override
-    public void participateActivity(String activityName, long driverId) {
-        DriverDto driverDto = getDriver(driverId);
-        Activity activity = activityRepository.findByName(activityName);
-        if (Optional.ofNullable(activity).isPresent()) {
-            if (!isAlreadyParticipate(activity, driverId)) {
-                activityDriverRepository.save(ActivityDriver.builder()
-                        .activityId(activity.getId())
-                        .driverId(driverDto.getId())
-                        .carTypeId(driverDto.getCarTypeId())
-                        .build());
-            } else {
-                throw new ParticipateActivityException("You have participated.");
-            }
-        } else {
-            throw new ParticipateActivityException("Activity is not exist.");
-        }
-    }
-
-    private DriverDto getDriver(long driverId) {
-        return restTemplate.getForEntity(String.format("%s/api/users/%s", USER_SERVICE_API, driverId), DriverDto.class).getBody();
+    private DriverDto[] findMatchDriverByCondition(long activityId, long carTypeId) {
+        return restTemplate.getForEntity(String.format("%s/api/activities/%d/carType/%d", USER_SERVICE_API, activityId, carTypeId), DriverDto[].class).getBody();
     }
 
     private UserLocationDto getUserLocation(long userId) {
         return restTemplate.getForEntity(String.format("%s/api/users/%s/location", USER_SERVICE_API, userId), UserLocationDto.class).getBody();
     }
 
-    public CarTypeResponse getCarType(String carTypeName) {
-        return restTemplate.getForEntity(String.format("%s/api/carType/type/%s", USER_SERVICE_API, carTypeName), CarTypeResponse.class).getBody();
+    private Optional<ActivityResponse> getActivityByName(String activityName) {
+        ResponseEntity<ActivityResponse> responseEntity = restTemplate.getForEntity(String.format("%s/api/activities/name/%s", USER_SERVICE_API, activityName), ActivityResponse.class);
+        if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(responseEntity.getBody());
     }
 
+    private Optional<CarTypeResponse> getCarTypeByName(String carTypeName) {
+        ResponseEntity<CarTypeResponse> responseEntity = restTemplate.getForEntity(String.format("%s/api/carType/name/%s", USER_SERVICE_API, carTypeName), CarTypeResponse.class);
+        if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(responseEntity.getBody());
+    }
+
+    private DriverDto getDriver(long driverId) {
+        return restTemplate.getForEntity(String.format("%s/api/users/%d", USER_SERVICE_API, driverId), DriverDto.class).getBody();
+    }
 
     @Override
-    public StartMatchResponse startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId) {
-        Activity activity = activityRepository.findByName(matchPreferredConditionDto.getActivity());
-        if (Optional.ofNullable(activity).isEmpty()) {
-            throw new NotMatchActivityException("Not match activity");
-        }
-        CarTypeResponse carType = getCarType(matchPreferredConditionDto.getCarType());
-        List<ActivityDriver> activityDrivers = activityDriverRepository.findAllByActivityIdAndCarTypeId(activity.getId(), carType.getId());
-        UserLocationDto passengerLocation = getUserLocation(passengerId);
-        ActivityDriver activityDriver = findMatchDriver(activityDrivers, passengerLocation);
-        Date date = DateTimeUtils.getCurrentDate();
-        Date time = DateTimeUtils.getCurrentTime();
-        MatchTrip matchTrip = matchTripRepository.save(MatchTrip.builder()
-                .driver(activityDriver.getDriverId()).passenger(passengerId)
-                .startPositionLatitude(passengerLocation.getLatitude())
-                .startPositionLongitude(passengerLocation.getLongitude())
-                .activityId(activityDriver.getActivityId())
-                .carTypeId(activityDriver.getCarTypeId()).matchStatus(WAITING_CONFIRM_MATCHED)
-                .date(date).time(time).build());
+    public StartMatchResponse startMatch(String activityName, String carTypeName, long passengerId) {
+        ActivityResponse activityResponse = getActivityByName(activityName).orElseThrow(NotMatchActivityException::new);
+        CarTypeResponse carTypeResponse = getCarTypeByName(carTypeName).orElseThrow(NotMatchCarTypeException::new);
+        MatchTrip matchTrip = tryMatch(passengerId, activityResponse.getId(), carTypeResponse.getId());
         return StartMatchResponse.builder().matchId(matchTrip.getId()).build();
+    }
+
+    private boolean hasMatchDrivers(DriverDto[] matchDrivers) {
+        return matchDrivers.length != 0;
+    }
+
+    private MatchTrip tryMatch(long passengerId, long activityId, long carTypeId) {
+        MatchTrip matchTrip;
+        DriverDto[] matchDrivers = findMatchDriverByCondition(activityId, carTypeId);
+        UserLocationDto passengerLocation = getUserLocation(passengerId);
+        Date date = getCurrentDate();
+        Date time = getCurrentTime();
+        if (hasMatchDrivers(matchDrivers)) {
+            DriverDto activityDriver = findMostCloseDriver(matchDrivers, passengerLocation);
+            matchTrip = matchTripRepository.save(MatchTrip.builder()
+                    .driver(activityDriver.getId()).passenger(passengerId)
+                    .startPositionLatitude(passengerLocation.getLatitude())
+                    .startPositionLongitude(passengerLocation.getLongitude())
+                    .activityId(activityId)
+                    .carTypeId(activityDriver.getCarTypeId()).matchStatus(WAITING_CONFIRM_MATCHED)
+                    .date(date).time(time).build());
+        } else {
+            matchTrip = matchTripRepository.save(MatchTrip.builder()
+                    .driver(NOT_YET_MATCHED).passenger(passengerId)
+                    .startPositionLatitude(passengerLocation.getLatitude())
+                    .startPositionLongitude(passengerLocation.getLongitude())
+                    .activityId(activityId)
+                    .carTypeId(NOT_YET_MATCHED).matchStatus(WAITING_CONFIRM_MATCHED)
+                    .date(date).time(time).build());
+        }
+        return matchTrip;
     }
 
     @Override
     public MatchedResultResponse getMatch(long passengerId, long matchId) {
-        MatchTrip matchTrip = matchTripRepository.findByIdAndPassenger(matchId, passengerId);
-        if (Optional.ofNullable(matchTrip).isEmpty()) {
-            return MatchedResultResponse.builder().completed(false).build();
+        MatchTrip matchTrip = matchTripRepository.findByIdAndPassenger(matchId, passengerId)
+                .orElseThrow(() -> new MatchIdNotFoundException(matchId));
+
+        MatchedResultResponse matchedResultResponse = MatchedResultResponse.builder().build();
+        if (matchTrip.getDriver() == NOT_YET_MATCHED) {
+            matchedResultResponse.setCompleted(false);
+            tryMatch(passengerId, matchTrip.getActivityId(), matchTrip.getCarTypeId());
+        } else {
+            String driverName = getDriver(matchTrip.getDriver()).getName();
+            matchedResultResponse = MatchedResultResponse.builder().completed(true)
+                    .id(matchId).driverId(matchTrip.getDriver())
+                    .date(convertDateToText(matchTrip.getDate()))
+                    .time(convertTimeToText(matchTrip.getTime()))
+                    .passengerId(matchTrip.getPassenger()).driverName(driverName)
+                    .startPositionLatitude(matchTrip.getStartPositionLatitude())
+                    .startPositionLongitude(matchTrip.getStartPositionLongitude())
+                    .activityId(matchTrip.getActivityId())
+                    .carTypeId(matchTrip.getCarTypeId()).build();
         }
-        String driverName = getDriver(matchTrip.getDriver()).getName();
-        return MatchedResultResponse.builder().completed(true)
-                .id(matchId).driverId(matchTrip.getDriver())
-                .date(DateTimeUtils.convertDateToText(matchTrip.getDate()))
-                .time(DateTimeUtils.convertTimeToText(matchTrip.getTime()))
-                .passengerId(matchTrip.getPassenger()).driverName(driverName)
-                .startPositionLatitude(matchTrip.getStartPositionLatitude())
-                .startPositionLongitude(matchTrip.getStartPositionLongitude())
-                .activityId(matchTrip.getActivityId())
-                .carTypeId(matchTrip.getCarTypeId()).build();
+        return matchedResultResponse;
     }
 
     @Override
@@ -128,21 +142,11 @@ public class MatchServiceImpl implements MatchService {
         matchTripRepository.updateMatchedTripStatus(matchId, passengerId, PASSENGER_CANCEL_MATCHED);
     }
 
-    @Override
-    public ActivityResponse getActivity(long activityId) {
-        Activity activity = activityRepository.findById(activityId);
-        return ActivityResponse.builder()
-                .id(activity.getId()).extraPrice(activity.getExtraPrice())
-                .startDay(activity.getStartDay()).expireDay(activity.getExpireDay())
-                .name(activity.getName()).build();
-    }
-
-
-    private ActivityDriver findMatchDriver(List<ActivityDriver> activityDrivers, UserLocationDto passengerLocation) {
+    private DriverDto findMostCloseDriver(DriverDto[] matchDrivers, UserLocationDto passengerLocation) {
         double minDistance = Double.MAX_VALUE;
-        Optional<ActivityDriver> matchDriver = Optional.empty();
-        for (ActivityDriver driver : activityDrivers) {
-            UserLocationDto driverLocation = getUserLocation(driver.getDriverId());
+        Optional<DriverDto> matchDriver = Optional.empty();
+        for (DriverDto driver : matchDrivers) {
+            UserLocationDto driverLocation = getUserLocation(driver.getId());
             double distance = Haversine.distance(passengerLocation.getLatitude(), passengerLocation.getLongitude(), driverLocation.getLatitude(), driverLocation.getLongitude());
             if (distance < minDistance) {
                 minDistance = distance;
@@ -150,10 +154,6 @@ public class MatchServiceImpl implements MatchService {
             }
         }
         return matchDriver.get();
-    }
-
-    private boolean isAlreadyParticipate(Activity activity, long driverId) {
-        return Optional.ofNullable(activityDriverRepository.findByActivityIdAndDriverId(activity.getId(), driverId)).isPresent();
     }
 
 

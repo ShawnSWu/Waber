@@ -4,11 +4,13 @@ import com.shawn.user.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmailAndRole(String email, long role);
+    Optional<User> findByEmailAndRole(String email, long role);
 
-    User findByIdAndRole(long id, long role);
+    Optional<User> findByIdAndRole(long id, long role);
 
 }

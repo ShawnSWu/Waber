@@ -15,13 +15,13 @@ public class PricingServiceImpl implements PricingService {
 
     private final RestTemplate restTemplate;
 
-    @Value("#{tripServiceUrl}")
+    @Value("${trip.service.url}")
     private String TRIP_SERVICE_API;
 
-    @Value("#{matchServiceUrl}")
+    @Value("${match.service.url}")
     private String MATCH_SERVICE_API;
 
-    @Value("#{userServiceUrl}")
+    @Value("${user.service.url}")
     private String USER_SERVICE_API;
 
     @Value("#{basicPricingCalculator}")
@@ -46,7 +46,7 @@ public class PricingServiceImpl implements PricingService {
     }
 
     private ActivityResponse getActivity(long activityId) {
-        return restTemplate.getForEntity(String.format("%s/api/activity/id/%d", MATCH_SERVICE_API, activityId), ActivityResponse.class).getBody();
+        return restTemplate.getForEntity(String.format("%s/api/activities/id/%d", USER_SERVICE_API, activityId), ActivityResponse.class).getBody();
     }
 
     private TripResponse getTrip(long tripId, long matchId, long passengerId) {

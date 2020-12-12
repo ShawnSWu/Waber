@@ -1,4 +1,4 @@
-package com.shawn.match.model.entity;
+package com.shawn.user.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity(name = "activity")
 @Builder
@@ -30,5 +31,8 @@ public class Activity {
 
     @Column(name = "expire_day")
     private String expireDay;
+
+    @ManyToMany(mappedBy = "activities", fetch = FetchType.LAZY)
+    private List<User> users;
 
 }

@@ -1,6 +1,5 @@
 package com.shawn.match.controller;
 
-import com.shawn.match.model.dto.ActivityResponse;
 import com.shawn.match.model.dto.MatchedResultResponse;
 import com.shawn.match.model.dto.MatchPreferredConditionDto;
 import com.shawn.match.model.dto.StartMatchResponse;
@@ -15,14 +14,9 @@ public class MatchController {
     @Autowired
     private MatchService matchService;
 
-    @PostMapping("/activities/{activityName}/drivers/{driverId}")
-    public void driverParticipateActivity(@PathVariable String activityName, @PathVariable long driverId) {
-        matchService.participateActivity(activityName, driverId);
-    }
-
     @PostMapping("/users/{passengerId}/match")
     public StartMatchResponse startingMatch(@RequestBody MatchPreferredConditionDto matchPreferredConditionDto, @PathVariable long passengerId) {
-        return matchService.startMatch(matchPreferredConditionDto, passengerId);
+        return matchService.startMatch(matchPreferredConditionDto.getActivity(), matchPreferredConditionDto.getCarType(), passengerId);
     }
 
     @GetMapping("/users/{passengerId}/match/{matchId}")
@@ -35,10 +29,6 @@ public class MatchController {
         matchService.confirmMatched(matchId, userId);
     }
 
-    @GetMapping("/activity/id/{activityId}")
-    public ActivityResponse getActivity(@PathVariable long activityId) {
-        return matchService.getActivity(activityId);
-    }
 
 
 }
