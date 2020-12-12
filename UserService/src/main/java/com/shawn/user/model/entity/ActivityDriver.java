@@ -1,4 +1,4 @@
-package com.shawn.match.model.entity;
+package com.shawn.user.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

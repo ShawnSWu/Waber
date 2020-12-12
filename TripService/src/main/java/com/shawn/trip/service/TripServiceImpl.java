@@ -1,5 +1,6 @@
 package com.shawn.trip.service;
 
+import com.shawn.trip.exception.NotFoundTripException;
 import com.shawn.trip.model.entity.Trip;
 import com.shawn.trip.model.dto.ArriveDestinationReq;
 import com.shawn.trip.model.dto.MatchTripResponse;
@@ -24,7 +25,7 @@ public class TripServiceImpl implements TripService {
         this.restTemplate = restTemplate;
     }
 
-    @Value("#{matchServiceUrl}")
+    @Value("${trip.service.url}")
     String MATCH_SERVICE_API;
 
     private final int ON_THE_WAY = 1, ARRIVE_DESTINATION = 2, CANCEL_TRIP_HALFWAY = 3;
@@ -62,7 +63,8 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public TripResponse getTrip(long passengerId, long matchId, long tripId) {
-        Trip trip = tripRepository.findByIdAndMatchId(tripId, matchId);
+        Trip trip = tripRepository.findByIdAndMatchId(tripId, matchId)
+                .orElseThrow(() -> new NotFoundTripException(String.format("id: %d", tripId)));
         MatchTripResponse matchTripResponse = getMatchTrip(matchId, passengerId);
         return TripResponse.builder()
                 .id(trip.getId())

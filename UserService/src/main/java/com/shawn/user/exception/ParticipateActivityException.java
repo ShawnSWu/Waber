@@ -1,4 +1,4 @@
-package com.shawn.match.exception;
+package com.shawn.user.exception;
 
 public class ParticipateActivityException extends RuntimeException {
     public ParticipateActivityException(String message) {

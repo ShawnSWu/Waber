@@ -1,15 +1,12 @@
 package com.shawn.user.controller;
 
 import com.shawn.user.exception.SignUpException;
-import com.shawn.user.model.dto.SignUpReq;
-import com.shawn.user.model.dto.CarTypeDto;
-import com.shawn.user.model.dto.DriverDto;
-import com.shawn.user.model.dto.SignUpSuccessResponse;
-import com.shawn.user.model.dto.UserLocationDto;
+import com.shawn.user.model.dto.*;
 import com.shawn.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -36,7 +33,9 @@ public class UserController {
                 signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpReq));
                 break;
         }
-        return signUpSuccessResponseDto.get();
+        return signUpSuccessResponseDto.orElseGet(() -> {
+            throw new SignUpException("Sign Up failed.");
+        });
     }
 
     @PutMapping("/users/{userId}/location")
@@ -59,8 +58,29 @@ public class UserController {
         return userService.getCarType(carTypeId);
     }
 
-    @GetMapping("/carType/type/{carTypeName}")
+    @GetMapping("/carType/name/{carTypeName}")
     public CarTypeDto getCarTypeByName(@PathVariable String carTypeName) {
         return userService.getCarType(carTypeName);
     }
+
+    @GetMapping("/activities/name/{activityName}")
+    public ActivityResponse getActivityByName(@PathVariable String activityName) {
+        return userService.getActivityByName(activityName);
+    }
+
+    @PostMapping("/activities/{activityName}/drivers/{driverId}")
+    public void driverParticipateActivity(@PathVariable String activityName, @PathVariable long driverId) {
+        userService.participateActivity(activityName, driverId);
+    }
+
+    @GetMapping("/activities/id/{activityId}")
+    public ActivityResponse getActivity(@PathVariable long activityId) {
+        return userService.getActivityById(activityId);
+    }
+
+    @GetMapping("/activities/{activityId}/carType/{carTypeId}")
+    public List<DriverDto> getActivityDriver(@PathVariable long activityId, @PathVariable long carTypeId) {
+        return userService.getDriverByActivityAndCarType(activityId, carTypeId);
+    }
+
 }

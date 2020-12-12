@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Builder
 @Getter
@@ -30,4 +31,16 @@ public class User {
 
     @Column(name = "role")
     private long role;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "activity_driver", joinColumns = {@JoinColumn(name = "activity_id")},
+            inverseJoinColumns = {@JoinColumn(name = "driver_id")}
+    )
+    private List<Activity> activities;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "driver_car_type", joinColumns = {@JoinColumn(name = "driver")},
+            inverseJoinColumns = {@JoinColumn(name = "car_type_id")}
+    )
+    private List<CarType> carTypes;
 }

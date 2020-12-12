@@ -1,10 +1,8 @@
 package com.shawn.user.service;
 
-import com.shawn.user.model.dto.SignUpReq;
-import com.shawn.user.model.dto.CarTypeDto;
-import com.shawn.user.model.dto.DriverDto;
-import com.shawn.user.model.dto.SignUpSuccessResponse;
-import com.shawn.user.model.dto.UserLocationDto;
+import com.shawn.user.model.dto.*;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -21,4 +19,12 @@ public interface UserService {
     CarTypeDto getCarType(long carType);
 
     CarTypeDto getCarType(String carTypeName);
+
+    void participateActivity(String activityName, long driverId);
+
+    ActivityResponse getActivityById(long activityId);
+
+    ActivityResponse getActivityByName(String activityName);
+
+    List<DriverDto> getDriverByActivityAndCarType(long activityId, long carTypeId);
 }

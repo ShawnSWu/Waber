@@ -16,18 +16,5 @@ public class PricingApplication {
         return new RestTemplate();
     }
 
-    @Bean(name = "tripServiceUrl")
-    public String tripServiceUrl(){
-        return "http://trip:8082";
-    }
 
-    @Bean(name = "matchServiceUrl")
-    public String matchServiceUrl(){
-        return "http://match:8081";
-    }
-
-    @Bean(name = "userServiceUrl")
-    public String userServiceUrl(){
-        return "http://user:8080";
-    }
 }
