@@ -14,8 +14,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     @Transactional
     @Modifying
-    @Query("update trip t set t.tripStatus = ?2, t.tripDistance=?3, t.destinationLatitude=?4, t.destinationLongitude=?5 where t.id = ?1")
-    void updateTripStatus(long tripId, long status, long distance, double destinationLatitude, double destinationLongitude);
+    @Query("update trip t set t.tripStatus = ?2, t.tripDistance=?3 where t.id = ?1")
+    void updateTripStatus(long tripId, long status, long distance);
 
     Optional<Trip> findByIdAndMatchId(long id, long matchId);
 

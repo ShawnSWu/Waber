@@ -2,7 +2,6 @@ package com.shawn.trip.service;
 
 import com.shawn.trip.exception.NotFoundTripException;
 import com.shawn.trip.model.entity.Trip;
-import com.shawn.trip.model.dto.ArriveDestinationReq;
 import com.shawn.trip.model.dto.MatchTripResponse;
 import com.shawn.trip.model.dto.PickUpResponse;
 import com.shawn.trip.model.dto.TripResponse;
@@ -39,9 +38,7 @@ public class TripServiceImpl implements TripService {
                 .matchId(matchTripResponse.getId())
                 .date(DateTimeUtils.convertToDate(matchTripResponse.getDate()))
                 .time(DateTimeUtils.convertToTime(matchTripResponse.getTime()))
-                .tripStatus(ON_THE_WAY)
-                .tripDistance(INITIAL_DISTANCE_ZERO)
-                .build());
+                .tripStatus(ON_THE_WAY).tripDistance(INITIAL_DISTANCE_ZERO).build());
         return PickUpResponse.builder().id(trip.getId()).build();
     }
 
@@ -54,11 +51,10 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public void arriveDestination(long passengerId, long matchId, long tripId, ArriveDestinationReq arriveDestinationReq) {
-        long tripDistance = arriveDestinationReq.getDistance();
-        double destinationLatitude = arriveDestinationReq.getLocationDto().getLatitude();
-        double destinationLongitude = arriveDestinationReq.getLocationDto().getLongitude();
-        tripRepository.updateTripStatus(tripId, ARRIVE_DESTINATION, tripDistance, destinationLatitude, destinationLongitude);
+    public void arriveDestination(long passengerId, long matchId, long tripId) {
+        MatchTripResponse tripResponse = getMatchTrip(matchId, passengerId);
+        long tripDistance = tripResponse.getDistance();
+        tripRepository.updateTripStatus(tripId, ARRIVE_DESTINATION, tripDistance);
     }
 
     @Override
@@ -71,10 +67,6 @@ public class TripServiceImpl implements TripService {
                 .driverId(matchTripResponse.getDriverId())
                 .matchId(trip.getMatchId())
                 .passengerId(matchTripResponse.getPassengerId())
-                .startPositionLatitude(matchTripResponse.getStartPositionLatitude())
-                .startPositionLongitude(matchTripResponse.getStartPositionLongitude())
-                .destinationLatitude(trip.getDestinationLatitude())
-                .destinationLongitude(trip.getDestinationLongitude())
                 .tripStatus(trip.getTripStatus())
                 .tripDistance(trip.getTripDistance())
                 .build();

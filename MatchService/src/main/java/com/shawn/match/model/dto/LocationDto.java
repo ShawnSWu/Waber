@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchPreferredConditionDto {
+public class LocationDto {
 
-    private LocationDto startLocation;
+    private double latitude;
 
-    private String carType;
-
-    private String activityName;
+    private double longitude;
 }

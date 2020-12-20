@@ -29,12 +29,6 @@ public class Trip {
     @Column(name = "time")
     private Date time;
 
-    @Column(name = "destination_latitude")
-    private double destinationLatitude;
-
-    @Column(name = "destination_longitude")
-    private double destinationLongitude;
-
     @Column(name = "trip_status")
     private long tripStatus;
 

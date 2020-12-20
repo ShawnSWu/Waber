@@ -16,4 +16,10 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(new SignUpFailedResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(value = SignInException.class)
+    @ResponseBody
+    public ResponseEntity<?> signUpFailed(SignInException e) {
+        return new ResponseEntity<>(new SignUpFailedResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
 }

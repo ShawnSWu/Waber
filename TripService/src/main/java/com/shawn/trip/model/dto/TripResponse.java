@@ -19,14 +19,6 @@ public class TripResponse {
 
     private long passengerId;
 
-    private double startPositionLatitude;
-
-    private double startPositionLongitude;
-
-    private double destinationLatitude;
-
-    private double destinationLongitude;
-
     private long tripStatus;
 
     private long tripDistance;

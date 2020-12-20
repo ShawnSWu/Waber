@@ -4,7 +4,7 @@ import com.shawn.match.model.dto.*;
 
 public interface MatchService {
 
-    StartMatchResponse startMatch(String activityName, String carTypeName, long passengerId);
+    StartMatchResponse startMatch(MatchPreferredConditionDto matchPreferredConditionDto, long passengerId);
 
     MatchedResultResponse getMatch(long passengerId, long matchId);
 
