@@ -5,16 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder @Getter
+@Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignUpSuccessResponse {
+public class SignInSuccessResponse {
 
     private long id;
 
     private String email;
 
     private String name;
-
-    private String password;
 }

@@ -1,6 +1,5 @@
 package com.shawn.trip.controller;
 
-import com.shawn.trip.model.dto.ArriveDestinationReq;
 import com.shawn.trip.model.dto.PickUpResponse;
 import com.shawn.trip.model.dto.TripResponse;
 import com.shawn.trip.service.TripService;
@@ -22,9 +21,8 @@ public class TripController {
     }
 
     @PostMapping("/users/{passengerId}/match/{matchId}/trip/{tripId}/arrive")
-    public void arriveDestination(@PathVariable long passengerId, @PathVariable long matchId, @PathVariable long tripId,
-                                  @RequestBody ArriveDestinationReq arriveDestinationReq) {
-        tripService.arriveDestination(passengerId, matchId, tripId, arriveDestinationReq);
+    public void arriveDestination(@PathVariable long passengerId, @PathVariable long matchId, @PathVariable long tripId) {
+        tripService.arriveDestination(passengerId, matchId, tripId);
     }
 
     @GetMapping("/users/{passengerId}/match/{matchId}/trip/{tripId}")

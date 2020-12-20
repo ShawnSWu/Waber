@@ -13,4 +13,6 @@ public interface ActivityDriverRepository extends JpaRepository<ActivityDriver, 
     Optional<ActivityDriver> findByActivityIdAndDriverId(long activityId, long driverId);
 
     List<ActivityDriver> findAllByActivityIdAndCarTypeId(long activityId, long carTypeId);
+
+    List<ActivityDriver> findAllByActivityId(long activityId);
 }

@@ -5,16 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder @Getter
-@NoArgsConstructor
+@Getter
+@Builder
 @AllArgsConstructor
-public class SignUpSuccessResponse {
+@NoArgsConstructor
+public class ActivityDriverDto {
 
     private long id;
 
-    private String email;
+    private long activityId;
 
-    private String name;
+    private long driverId;
 
-    private String password;
+    private long carTypeId;
+
 }

@@ -16,8 +16,8 @@ public class MatchedResultResponse {
     @JsonProperty("completed")
     private boolean completed;
 
-    @JsonProperty("driverName")
-    private String driverName;
+    @JsonProperty("driver")
+    private DriverDto driver;
 
     @JsonProperty("passengerId")
     private long passengerId;
@@ -27,9 +27,6 @@ public class MatchedResultResponse {
 
     @JsonProperty("time")
     private String time;
-
-    @JsonProperty("driverId")
-    private long driverId;
 
     @JsonProperty("startPositionLatitude")
     private double startPositionLatitude;

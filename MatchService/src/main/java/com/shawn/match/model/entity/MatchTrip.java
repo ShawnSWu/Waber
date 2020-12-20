@@ -32,6 +32,12 @@ public class MatchTrip {
     @Column(name = "start_position_longitude")
     double startPositionLongitude;
 
+    @Column(name = "destination_position_latitude")
+    double destinationPositionLatitude;
+
+    @Column(name = "destination_position_longitude")
+    double destinationPositionLongitude;
+
     @Column(name = "activity_id")
     long activityId;
 
@@ -40,6 +46,9 @@ public class MatchTrip {
 
     @Column(name = "match_status")
     long matchStatus;
+
+    @Column(name = "distance")
+    long distance;
 
     @Column(name = "date")
     Date date;

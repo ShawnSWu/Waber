@@ -65,10 +65,12 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public StartMatchResponse startMatch(String activityName, String carTypeName, long passengerId) {
-        ActivityResponse activityResponse = getActivityByName(activityName).orElseThrow(NotMatchActivityException::new);
-        CarTypeResponse carTypeResponse = getCarTypeByName(carTypeName).orElseThrow(NotMatchCarTypeException::new);
-        MatchTrip matchTrip = tryMatch(passengerId, activityResponse.getId(), carTypeResponse.getId());
+    public StartMatchResponse startMatch(MatchPreferredConditionDto preferredCondition, long passengerId) {
+        ActivityResponse activityResponse = getActivityByName(preferredCondition.getActivityName()).orElseThrow(NotMatchActivityException::new);
+        CarTypeResponse carTypeResponse = getCarTypeByName(preferredCondition.getCarType()).orElseThrow(NotMatchCarTypeException::new);
+        LocationDto destinationLocation = preferredCondition.getStartLocation();
+        MatchTrip matchTrip = tryMatch(passengerId, activityResponse.getId(), carTypeResponse.getId(),
+                destinationLocation.getLatitude(), destinationLocation.getLongitude());
         return StartMatchResponse.builder().matchId(matchTrip.getId()).build();
     }
 
@@ -76,26 +78,30 @@ public class MatchServiceImpl implements MatchService {
         return matchDrivers.length != 0;
     }
 
-    private MatchTrip tryMatch(long passengerId, long activityId, long carTypeId) {
+    private MatchTrip tryMatch(long passengerId, long activityId, long carTypeId, double destinationLatitude, double destinationLongitude) {
         MatchTrip matchTrip;
         DriverDto[] matchDrivers = findMatchDriverByCondition(activityId, carTypeId);
         UserLocationDto passengerLocation = getUserLocation(passengerId);
         Date date = getCurrentDate();
         Date time = getCurrentTime();
         if (hasMatchDrivers(matchDrivers)) {
-            DriverDto activityDriver = findMostCloseDriver(matchDrivers, passengerLocation);
+            MatchDriverDto activityDriver = findMostCloseDriver(matchDrivers, passengerLocation);
             matchTrip = matchTripRepository.save(MatchTrip.builder()
-                    .driver(activityDriver.getId()).passenger(passengerId)
+                    .driver(activityDriver.getDriver().getId()).passenger(passengerId)
                     .startPositionLatitude(passengerLocation.getLatitude())
                     .startPositionLongitude(passengerLocation.getLongitude())
-                    .activityId(activityId)
-                    .carTypeId(activityDriver.getCarTypeId()).matchStatus(WAITING_CONFIRM_MATCHED)
+                    .destinationPositionLatitude(destinationLatitude)
+                    .destinationPositionLongitude(destinationLongitude)
+                    .activityId(activityId).distance(activityDriver.getDistance())
+                    .carTypeId(activityDriver.getDriver().getCarTypeId()).matchStatus(WAITING_CONFIRM_MATCHED)
                     .date(date).time(time).build());
         } else {
             matchTrip = matchTripRepository.save(MatchTrip.builder()
                     .driver(NOT_YET_MATCHED).passenger(passengerId)
                     .startPositionLatitude(passengerLocation.getLatitude())
                     .startPositionLongitude(passengerLocation.getLongitude())
+                    .destinationPositionLatitude(destinationLatitude)
+                    .destinationPositionLongitude(destinationLongitude)
                     .activityId(activityId)
                     .carTypeId(NOT_YET_MATCHED).matchStatus(WAITING_CONFIRM_MATCHED)
                     .date(date).time(time).build());
@@ -107,22 +113,21 @@ public class MatchServiceImpl implements MatchService {
     public MatchedResultResponse getMatch(long passengerId, long matchId) {
         MatchTrip matchTrip = matchTripRepository.findByIdAndPassenger(matchId, passengerId)
                 .orElseThrow(() -> new MatchIdNotFoundException(matchId));
-
         MatchedResultResponse matchedResultResponse = MatchedResultResponse.builder().build();
         if (matchTrip.getDriver() == NOT_YET_MATCHED) {
             matchedResultResponse.setCompleted(false);
-            tryMatch(passengerId, matchTrip.getActivityId(), matchTrip.getCarTypeId());
+            tryMatch(passengerId, matchTrip.getActivityId(), matchTrip.getCarTypeId(),
+                    matchTrip.getDestinationPositionLatitude(), matchTrip.getDestinationPositionLongitude());
         } else {
-            String driverName = getDriver(matchTrip.getDriver()).getName();
+            DriverDto driverName = getDriver(matchTrip.getDriver());
             matchedResultResponse = MatchedResultResponse.builder().completed(true)
-                    .id(matchId).driverId(matchTrip.getDriver())
-                    .date(convertDateToText(matchTrip.getDate()))
-                    .time(convertTimeToText(matchTrip.getTime()))
-                    .passengerId(matchTrip.getPassenger()).driverName(driverName)
+                    .id(matchId).driver(driverName).passengerId(matchTrip.getPassenger())
+                    .date(convertDateToText(matchTrip.getDate())).time(convertTimeToText(matchTrip.getTime()))
                     .startPositionLatitude(matchTrip.getStartPositionLatitude())
                     .startPositionLongitude(matchTrip.getStartPositionLongitude())
-                    .activityId(matchTrip.getActivityId())
-                    .carTypeId(matchTrip.getCarTypeId()).build();
+                    .destinationLatitude(matchTrip.getDestinationPositionLatitude())
+                    .destinationLongitude(matchTrip.getDestinationPositionLongitude())
+                    .activityId(matchTrip.getActivityId()).carTypeId(matchTrip.getCarTypeId()).build();
         }
         return matchedResultResponse;
     }
@@ -142,7 +147,7 @@ public class MatchServiceImpl implements MatchService {
         matchTripRepository.updateMatchedTripStatus(matchId, passengerId, PASSENGER_CANCEL_MATCHED);
     }
 
-    private DriverDto findMostCloseDriver(DriverDto[] matchDrivers, UserLocationDto passengerLocation) {
+    private MatchDriverDto findMostCloseDriver(DriverDto[] matchDrivers, UserLocationDto passengerLocation) {
         double minDistance = Double.MAX_VALUE;
         Optional<DriverDto> matchDriver = Optional.empty();
         for (DriverDto driver : matchDrivers) {
@@ -153,7 +158,7 @@ public class MatchServiceImpl implements MatchService {
                 matchDriver = Optional.of(driver);
             }
         }
-        return matchDriver.get();
+        return MatchDriverDto.builder().distance((int) minDistance).driver(matchDriver.get()).build();
     }
 
 

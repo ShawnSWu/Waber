@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface UserService {
 
-    SignUpSuccessResponse signUpAsPassenger(SignUpReq signUpReq);
+    SignInSuccessResponse signIn(SignInReq signInReq);
 
-    SignUpSuccessResponse signUpAsDriver(SignUpReq signUpReq);
+    SignUpSuccessResponse signUpAsPassenger(PassengerSignUpReq passengerSignUpReq);
+
+    SignUpSuccessResponse signUpAsDriver(DriverSignUpReq signUpReq);
 
     void updateLocation(long userId, double latitude, double longitude);
 
@@ -21,6 +23,8 @@ public interface UserService {
     CarTypeDto getCarType(String carTypeName);
 
     void participateActivity(String activityName, long driverId);
+
+    List<ActivityDriverDto> getParticipatingDrivers(String activityName);
 
     ActivityResponse getActivityById(long activityId);
 

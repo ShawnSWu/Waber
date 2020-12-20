@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,58 +45,82 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public SignUpSuccessResponse signUpAsPassenger(SignUpReq signUpReq) {
-        if (isPassengerExist(signUpReq)) {
-            throw new SignUpException("Passenger already exist.");
+    public SignInSuccessResponse signIn(SignInReq signInReq) {
+        String account = signInReq.getEmail();
+        User user = userRepository.findByEmail(account)
+                .orElseThrow(AccountIsNotExistException::new);
+        if (!isPasswordCorrect(signInReq.getPassword(), user.getHashedPassword())) {
+            throw new SignInException();
         }
-        User newPassenger = createPassengerUser(signUpReq);
-        return SignUpSuccessResponse.builder().id(newPassenger.getId()).email(newPassenger.getEmail()).name(newPassenger.getName()).build();
+        return SignInSuccessResponse.builder()
+                .id(user.getId()).email(user.getEmail())
+                .name(user.getName()).build();
     }
 
-    private User createPassengerUser(SignUpReq signUpReq) {
+    private boolean isPasswordCorrect(String logInPassword, String hashedPassword) {
+        return bCryptPasswordEncoder.matches(logInPassword, hashedPassword);
+    }
+
+    @Override
+    public SignUpSuccessResponse signUpAsPassenger(PassengerSignUpReq passengerSignUpReq) {
+        if (isPassengerExist(passengerSignUpReq)) {
+            throw new SignUpException("Passenger already exist.");
+        }
+        User newPassenger = createPassengerUser(passengerSignUpReq);
+        return SignUpSuccessResponse.builder()
+                .id(newPassenger.getId()).email(newPassenger.getEmail())
+                .name(newPassenger.getName()).password(passengerSignUpReq.getPassword()).build();
+    }
+
+    private User createPassengerUser(PassengerSignUpReq passengerSignUpReq) {
+        String hashedPassword = bCryptPasswordEncoder.encode(passengerSignUpReq.getPassword());
         return userRepository.save(User.builder()
-                .email(signUpReq.getEmail())
-                .hashedPassword(bCryptPasswordEncoder.encode(signUpReq.getPassword()))
-                .name(signUpReq.getName())
+                .email(passengerSignUpReq.getEmail())
+                .hashedPassword(hashedPassword)
+                .name(passengerSignUpReq.getName())
                 .role(PASSENGER_ROLE_CODE)
                 .build());
     }
 
     @Override
-    public SignUpSuccessResponse signUpAsDriver(SignUpReq signUpReq) {
-        if (isDriverExist(signUpReq)) {
+    public SignUpSuccessResponse signUpAsDriver(DriverSignUpReq driverSignUpReq) {
+        if (isDriverExist(driverSignUpReq)) {
             throw new SignUpException("Driver already exist.");
         }
-        User newDriver = createDriverUser(signUpReq);
-        return SignUpSuccessResponse.builder().id(newDriver.getId()).email(newDriver.getEmail()).name(newDriver.getName()).build();
+        CarType carType = validateCarTypeExist(driverSignUpReq.getCarType());
+        User newDriver = createDriverUser(driverSignUpReq, carType);
+        return SignUpSuccessResponse.builder()
+                .id(newDriver.getId()).email(newDriver.getEmail())
+                .name(newDriver.getName()).password(driverSignUpReq.getPassword()).build();
     }
 
-    private User createDriverUser(SignUpReq signUpReq) {
-        String hashedPassword = bCryptPasswordEncoder.encode(signUpReq.getPassword());
-        Optional<CarType> carType = carTypeRepository.findByType(signUpReq.getCarType());
-        if (carType.isEmpty()) {
-            throw new NotFoundCarTypeException(String.format("Not found car type name: %s", signUpReq.getCarType()));
-        }
+    private User createDriverUser(DriverSignUpReq driverSignUpReq, CarType carType) {
+        String hashedPassword = bCryptPasswordEncoder.encode(driverSignUpReq.getPassword());
         User user = userRepository.save(User.builder()
-                .email(signUpReq.getEmail())
+                .email(driverSignUpReq.getEmail())
                 .hashedPassword(hashedPassword)
-                .name(signUpReq.getName())
+                .name(driverSignUpReq.getName())
                 .role(DRIVER_ROLE_CODE)
                 .build());
         DriverCarType driverCarType = DriverCarType.builder()
                 .driver(user.getId())
-                .carTypeId(carType.get().getId())
+                .carTypeId(carType.getId())
                 .build();
         driverCarTypeRepository.save(driverCarType);
         return user;
     }
 
-    private boolean isPassengerExist(SignUpReq signUpReq) {
-        return userRepository.findByEmailAndRole(signUpReq.getEmail(), PASSENGER_ROLE_CODE).isPresent();
+    private boolean isPassengerExist(PassengerSignUpReq passengerSignUpReq) {
+        return userRepository.findByEmailAndRole(passengerSignUpReq.getEmail(), PASSENGER_ROLE_CODE).isPresent();
     }
 
-    private boolean isDriverExist(SignUpReq signUpReq) {
+    private boolean isDriverExist(DriverSignUpReq signUpReq) {
         return userRepository.findByEmailAndRole(signUpReq.getEmail(), DRIVER_ROLE_CODE).isPresent();
+    }
+
+    private CarType validateCarTypeExist(String carType) {
+        return carTypeRepository.findByType(carType)
+                .orElseThrow(() -> new NotFoundCarTypeException(String.format("type: %s", carType)));
     }
 
     @Override
@@ -112,7 +136,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLocationDto getUserLatestLocation(long userId) {
         UserLocation userLocation = userLocationRepository.findFirstByUserIdOrderByIdDesc(userId)
-                .orElseThrow(()->new NotFoundUserLocationException(String.format("id: %d", userId)));
+                .orElseThrow(() -> new NotFoundUserLocationException(String.format("id: %d", userId)));
         return UserLocationDto.builder().userId(userId).latitude(userLocation.getLatitude()).longitude(userLocation.getLongitude()).build();
     }
 
@@ -160,8 +184,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<ActivityDriverDto> getParticipatingDrivers(String activityName) {
+        ActivityResponse activityResponse = getActivityByName(activityName);
+        List<ActivityDriver> participatingDrivers = activityDriverRepository.findAllByActivityId(activityResponse.getId());
+        return participatingDrivers.stream().map(driver -> ActivityDriverDto.builder()
+                .activityId(driver.getActivityId()).carTypeId(driver.getCarTypeId())
+                .driverId(driver.getDriverId()).build()).collect(Collectors.toList());
+    }
+
+    @Override
     public ActivityResponse getActivityByName(String activityName) {
-        Activity activity = activityRepository.findByName(activityName).orElseThrow(() -> new ParticipateActivityException("Activity is not exist."));
+        Activity activity = activityRepository.findByName(activityName).orElseThrow(NotFoundActivityException::new);
         return ActivityResponse.builder().id(activity.getId())
                 .name(activity.getName()).extraPrice(activity.getExtraPrice())
                 .startDay(activity.getStartDay()).expireDay(activity.getExpireDay())
@@ -174,7 +207,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ActivityResponse getActivityById(long activityId) {
-        Activity activity = activityRepository.findById(activityId).orElseThrow(() -> new ParticipateActivityException("Activity is not exist."));
+        Activity activity = activityRepository.findById(activityId).orElseThrow(NotFoundActivityException::new);
         return ActivityResponse.builder()
                 .id(activity.getId()).extraPrice(activity.getExtraPrice())
                 .startDay(activity.getStartDay()).expireDay(activity.getExpireDay())

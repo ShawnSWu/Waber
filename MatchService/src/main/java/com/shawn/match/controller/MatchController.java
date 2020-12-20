@@ -16,7 +16,7 @@ public class MatchController {
 
     @PostMapping("/users/{passengerId}/match")
     public StartMatchResponse startingMatch(@RequestBody MatchPreferredConditionDto matchPreferredConditionDto, @PathVariable long passengerId) {
-        return matchService.startMatch(matchPreferredConditionDto.getActivity(), matchPreferredConditionDto.getCarType(), passengerId);
+        return matchService.startMatch(matchPreferredConditionDto, passengerId);
     }
 
     @GetMapping("/users/{passengerId}/match/{matchId}")

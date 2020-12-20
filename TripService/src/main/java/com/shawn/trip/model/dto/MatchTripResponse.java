@@ -21,9 +21,15 @@ public class MatchTripResponse {
 
     private double startPositionLongitude;
 
+    private double destinationLatitude;
+
+    private double destinationLongitude;
+
     private long activity;
 
     private long carType;
+
+    private long distance;
 
     long matchStatus;
 

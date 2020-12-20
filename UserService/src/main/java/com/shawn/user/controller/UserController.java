@@ -1,13 +1,11 @@
 package com.shawn.user.controller;
 
-import com.shawn.user.exception.SignUpException;
 import com.shawn.user.model.dto.*;
 import com.shawn.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -16,26 +14,20 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/users")
-    public SignUpSuccessResponse signUp(@RequestBody SignUpReq signUpReq, @RequestParam String type) {
-        final String DRIVER = "driver";
-        final String PASSENGER = "passenger";
-        Optional<SignUpSuccessResponse> signUpSuccessResponseDto = Optional.empty();
-        switch (type) {
-            case DRIVER: {
-                if (Optional.ofNullable(signUpReq.getCarType()).isEmpty()) {
-                    throw new SignUpException("Apply to become a driver, car type cannot be empty when.");
-                }
-                signUpSuccessResponseDto = Optional.of(userService.signUpAsDriver(signUpReq));
-            }
-            break;
-            case PASSENGER:
-                signUpSuccessResponseDto = Optional.of(userService.signUpAsPassenger(signUpReq));
-                break;
-        }
-        return signUpSuccessResponseDto.orElseGet(() -> {
-            throw new SignUpException("Sign Up failed.");
-        });
+    @PostMapping("/drivers")
+    public SignUpSuccessResponse signUpAsDriver(@RequestBody DriverSignUpReq driverSignUpReq) {
+        return userService.signUpAsDriver(driverSignUpReq);
+    }
+
+    @PostMapping("/passengers")
+    public SignUpSuccessResponse signUpAsPassenger(@RequestBody PassengerSignUpReq passengerSignUpReq) {
+        return userService.signUpAsPassenger(passengerSignUpReq);
+    }
+
+
+    @PostMapping("/users/signIn")
+    public SignInSuccessResponse login(@RequestBody SignInReq signInReq) {
+        return userService.signIn(signInReq);
     }
 
     @PutMapping("/users/{userId}/location")
@@ -81,6 +73,11 @@ public class UserController {
     @GetMapping("/activities/{activityId}/carType/{carTypeId}")
     public List<DriverDto> getActivityDriver(@PathVariable long activityId, @PathVariable long carTypeId) {
         return userService.getDriverByActivityAndCarType(activityId, carTypeId);
+    }
+
+    @GetMapping("/activities/{activityName}/drivers")
+    public List<ActivityDriverDto> getParticipatingDrivers(@PathVariable String activityName) {
+        return userService.getParticipatingDrivers(activityName);
     }
 
 }

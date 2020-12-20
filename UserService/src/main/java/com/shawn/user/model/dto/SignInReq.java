@@ -1,20 +1,18 @@
 package com.shawn.user.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class SignUpSuccessResponse {
+@NoArgsConstructor
+@Getter
+public class SignInReq {
 
-    private long id;
-
+    @JsonProperty("email")
     private String email;
 
-    private String name;
-
+    @JsonProperty("password")
     private String password;
 }

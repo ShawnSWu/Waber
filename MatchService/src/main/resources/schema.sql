@@ -17,16 +17,19 @@ values (4, 'Passenger cancel matched');
 
 create table match_trip
 (
-    id                       integer   not null auto_increment,
-    driver_id                integer   not null,
-    passenger_id             integer   not null,
-    activity_id              integer   not null,
-    match_status             integer   not null,
-    start_position_latitude  double    not null,
-    start_position_longitude double    not null,
-    car_type_id              integer   not null,
-    date                     timestamp not null,
-    time                     timestamp not null,
+    id                             integer   not null auto_increment,
+    driver_id                      integer   not null,
+    passenger_id                   integer   not null,
+    activity_id                    integer   not null,
+    match_status                   integer   not null,
+    start_position_latitude        double    not null,
+    start_position_longitude       double    not null,
+    destination_position_latitude  double    not null,
+    destination_position_longitude double    not null,
+    car_type_id                    integer   not null,
+    distance                       integer   not null,
+    date                           timestamp not null,
+    time                           timestamp not null,
     primary key (id),
     foreign key (match_status) references match_status (id)
 );

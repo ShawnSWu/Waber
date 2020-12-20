@@ -19,8 +19,6 @@ create table trip
     match_id                 integer     not null,
     date                     timestamp   not null,
     time                     timestamp   not null,
-    destination_latitude     double      not null,
-    destination_longitude    double      not null,
     trip_status              integer     not null,
     trip_distance            integer     not null,
     primary key (id),
