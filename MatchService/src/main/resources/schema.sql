@@ -5,6 +5,9 @@ create table match_status
     primary key (id)
 );
 
+
+insert into match_status
+values (-1, 'Waiting matched');
 insert into match_status
 values (1, 'Waiting to confirm match');
 insert into match_status

@@ -1,0 +1,1 @@
+delete from trip where true;
