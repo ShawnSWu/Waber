@@ -1,0 +1,1 @@
+delete from match_trip where true;

@@ -29,7 +29,7 @@ public class MatchServiceImpl implements MatchService {
     private String USER_SERVICE_API;
 
     private final int WAITING_CONFIRM_MATCHED = 1, SUCCESSFULLY_MATCHED = 2, DRIVER_CANCEL_MATCHED = 3,
-            PASSENGER_CANCEL_MATCHED = 4, NOT_YET_MATCHED = -1;
+            PASSENGER_CANCEL_MATCHED = 4, WAITING_MATCHED = -1;
 
     public MatchServiceImpl(MatchTripRepository matchTripRepository, RestTemplate restTemplate) {
         this.matchTripRepository = matchTripRepository;
@@ -97,13 +97,13 @@ public class MatchServiceImpl implements MatchService {
                     .date(date).time(time).build());
         } else {
             matchTrip = matchTripRepository.save(MatchTrip.builder()
-                    .driver(NOT_YET_MATCHED).passenger(passengerId)
+                    .driver(WAITING_MATCHED).passenger(passengerId)
                     .startPositionLatitude(passengerLocation.getLatitude())
                     .startPositionLongitude(passengerLocation.getLongitude())
                     .destinationPositionLatitude(destinationLatitude)
                     .destinationPositionLongitude(destinationLongitude)
                     .activityId(activityId)
-                    .carTypeId(NOT_YET_MATCHED).matchStatus(WAITING_CONFIRM_MATCHED)
+                    .carTypeId(WAITING_MATCHED).matchStatus(WAITING_MATCHED)
                     .date(date).time(time).build());
         }
         return matchTrip;
@@ -114,7 +114,7 @@ public class MatchServiceImpl implements MatchService {
         MatchTrip matchTrip = matchTripRepository.findByIdAndPassenger(matchId, passengerId)
                 .orElseThrow(() -> new MatchIdNotFoundException(matchId));
         MatchedResultResponse matchedResultResponse = MatchedResultResponse.builder().build();
-        if (matchTrip.getDriver() == NOT_YET_MATCHED) {
+        if (matchTrip.getMatchStatus() == WAITING_MATCHED) {
             matchedResultResponse.setCompleted(false);
             tryMatch(passengerId, matchTrip.getActivityId(), matchTrip.getCarTypeId(),
                     matchTrip.getDestinationPositionLatitude(), matchTrip.getDestinationPositionLongitude());

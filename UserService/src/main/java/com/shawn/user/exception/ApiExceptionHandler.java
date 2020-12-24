@@ -22,4 +22,11 @@ public class ApiExceptionHandler {
     public ResponseEntity<?> signUpFailed(SignInException e) {
         return new ResponseEntity<>(new SignUpFailedResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(value = ParticipateActivityException.class)
+    @ResponseBody
+    public ResponseEntity<?> ParticipateActivityFailed(ParticipateActivityException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

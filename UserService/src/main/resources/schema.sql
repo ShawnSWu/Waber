@@ -40,8 +40,8 @@ create table driver_car_type
     driver      integer not null,
     car_type_id integer not null,
     primary key (id),
-    foreign key (driver) references user (id),
-    foreign key (car_type_id) references car_type (id)
+    foreign key (driver) references user (id) ON DELETE CASCADE,
+    foreign key (car_type_id) references car_type (id) ON DELETE CASCADE
 );
 
 create table user_location
@@ -52,7 +52,7 @@ create table user_location
     latitude  double   not null,
     longitude double   not null,
     primary key (id),
-    foreign key (user_id) references user (id)
+    foreign key (user_id) references user (id) ON DELETE CASCADE
 );
 
 create table activity
@@ -74,7 +74,7 @@ create table activity_driver
     driver_id   integer not null,
     car_type_id integer not null,
     primary key (id),
-    foreign key (activity_id) references activity (id),
-    foreign key (driver_id) references user (id),
-    foreign key (car_type_id) references car_type (id)
+    foreign key (activity_id) references activity (id) ON DELETE CASCADE,
+    foreign key (driver_id) references user (id) ON DELETE CASCADE,
+    foreign key (car_type_id) references car_type (id) ON DELETE CASCADE
 );
